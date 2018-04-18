@@ -12,6 +12,7 @@ import com.qos.ussd.util.arad.dto.TravelItenary;
 import com.qos.ussd.util.arad.dto.TravelTime;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -26,6 +27,8 @@ public class SubscriberInfo {
     private String merchantName;
     private String accountDetails;
     private MerchantDetailsResp merchantDetails;
+    
+    private HashMap<String, Object> subParams = new HashMap<>();
     
     private ArrayList<Agency> agencyList;
     private int selectedAgency;
@@ -243,6 +246,20 @@ public class SubscriberInfo {
 
     public void setSelectedTravelTime(int selectedTravelTime) {
         this.selectedTravelTime = selectedTravelTime;
+    }
+
+    /**
+     * @return the subParams
+     */
+    public HashMap<String, Object> getSubParams() {
+        return subParams;
+    }
+
+    /**
+     * @param subParams the subParams to set
+     */
+    public void setSubParams(HashMap<String, Object> subParams) {
+        this.subParams = subParams;
     }
     
     

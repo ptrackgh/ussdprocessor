@@ -39,10 +39,19 @@ public class UssdConstants {
     public static Properties MESSAGES = new Properties();
 //    public static final String merchantDetails_Username="USR00";
 //    public static final String merchantDetails_Password="YG739G5XFVPYYV4ADJVW";
-    public static final String merchantDetails_Username="QSUSR06";
-    public static final String merchantDetails_Password="Y0739G5XFVPYY11AIJK";
+    
+    //live settings
+//    public static final String merchantDetails_Username="QSUSR06";
+//    public static final String merchantDetails_Password="Y0739G5XFVPYY11AIJK";
+    
+    //test settings
+    public static final String merchantDetails_Username="USR00";
+    public static final String merchantDetails_Password="YG739G5XFVPYYV4ADJVW";
+    
     public static final String[] ARAD_COMPANIES={"","La Poste","Confort","ATT"};
     public static final String[] ARAD_DEPARTURE_LOCATIONS={"","Cotonou","Calavi / Arcon Ville","Calavi / IITA","Bohicon","Parakou","Malanville","Dassa-Zoume"};
     public static final String[] ARAD_DESTINATION_LOCATIONS={"","Cotonou","Calavi / Arcon Ville","Calavi / IITA","Bohicon","Parakou","Malanville","Dassa-Zoume"};
     public static final String[] ARAD_DEPARTURE_TIMES={"","07:00","11:00","15:00","19:00","21:00"};
+    public static final String[] TVM_TAX_TYPE={"","TVMTP","TVMS","TVMTPP","TVMTPM","TVMTC"};
+    public static final String[] TVM_PAYER_TYPE={"","P","E"};
 }

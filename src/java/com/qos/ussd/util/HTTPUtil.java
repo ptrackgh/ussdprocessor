@@ -8,6 +8,7 @@ package com.qos.ussd.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.qos.ussd.main.SubscriberInfo;
+import com.qos.ussd.main.USSDSessionHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,25 +37,30 @@ import org.apache.log4j.Logger;
  * @author ptrack
  */
 public class HTTPUtil {
-    private static final String merchantDetails_URL = "http://10.4.94.1:8221/QosicBridge/user/merchantsbycode/";
+    //private static final String merchantDetails_URL = "http://10.4.94.1:8221/QosicBridge/user/merchantsbycode/";
     //private static final String merchantDetails_URL = "https://10.4.94.2:8443/QosicBridge/user/merchantsbycode/";
     //private static final String merchantDetails_URL = "http://www.qosic.net:8221/QosicBridge/user/merchantsbycode/";
-    private static final String requestPayment_URL = "https://10.4.94.1:8443/QosicBridge/user/requestpayment";
+    //private static final String requestPayment_URL = "https://10.4.94.1:8443/QosicBridge/user/requestpayment";
     //private static final String requestPayment_URL = "http://www.qosic.net:8221/QosicBridge/user/requestpayment";
     //private static final String requestPayment_URL = "http://10.4.94.1:8221/QosicBridge/user/requestpayment";
-    public static final String agencyList_URL = "http://arad-reservation.com/web/ws/agence.list";
-    public static final String travelItenary_URL = "http://arad-reservation.com/web/ws/agence.tarif/";
-    public static final String travelTimes_URL = "http://arad-reservation.com/web/ws/agence.time/";
+    //public static final String agencyList_URL = "http://arad-reservation.com/web/ws/agence.list";
+    //public static final String travelItenary_URL = "http://arad-reservation.com/web/ws/agence.tarif/";
+    //public static final String travelTimes_URL = "http://arad-reservation.com/web/ws/agence.time/";
 
-    private static final String encoding = Base64.encodeBase64String((UssdConstants.merchantDetails_Username + ":"
-            + UssdConstants.merchantDetails_Password).getBytes());
+    
+    final static String username = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_USERNAME.toString());
+    final static String password = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_PASSWORD.toString());
+    final String merchant_details_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_URL.toString());
+    final String req_payment_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.REQUEST_PAYMENT_URL.toString());
+    
+    private static final String encoding = Base64.encodeBase64String((username + ":"+ password).getBytes());
     
     public String sendRequestPayment(JsonObject payload) {
         String resp = "";
         CloseableHttpClient httpclient = null;// = getHttpClient(requestPayment_URL);
         try {
-            httpclient = getHttpClient(requestPayment_URL);
-            URI build = new URIBuilder(requestPayment_URL).build();
+            httpclient = getHttpClient(req_payment_url);
+            URI build = new URIBuilder(req_payment_url).build();
             final HttpPost httppost = new HttpPost(build);
             httppost.setHeader("Authorization", "Basic " + encoding);
             httppost.addHeader("Content-Type", "application/json");
@@ -91,11 +97,54 @@ public class HTTPUtil {
         return resp;
     }
     
+    public String getTaxDetails(JsonObject payload) {
+        String resp = "";
+        CloseableHttpClient httpclient = null;// = getHttpClient(requestPayment_URL);
+        final String url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.TVM_CALCULATE_TAX_URL.toString());
+        try {
+            httpclient = getHttpClient(url);
+            URI build = new URIBuilder(url).build();
+            final HttpPost httppost = new HttpPost(build);
+            httppost.setHeader("Authorization", "Basic " + encoding);
+            httppost.addHeader("Content-Type", "application/json");
+            Logger.getLogger(this.getClass()).info("HttpPost payload: " + payload);
+            HttpEntity entity = new StringEntity(payload.toString());
+            httppost.setEntity(entity);
+            try (CloseableHttpResponse response1 = httpclient.execute(httppost)) {
+                Logger.getLogger(this.getClass()).info("status line: " + response1.getStatusLine());
+                HttpEntity entity1 = response1.getEntity();
+                Logger.getLogger(this.getClass()).info("Response from TVM_CALCULATE_TAX_URL: " + response1.getStatusLine());
+                resp = EntityUtils.toString(entity1);
+                EntityUtils.consume(entity1);
+                response1.close();
+            }
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(this.getClass()).error("URISyntaxException: " + ex.getMessage());
+        } catch (UnsupportedOperationException ex) {
+            Logger.getLogger(this.getClass()).error("UnsupportedOperationException: " + ex.getMessage());
+        } catch (IOException ex) {
+            Logger.getLogger(this.getClass()).error("IOException: " + ex.getMessage());
+        } catch (KeyManagementException | NoSuchAlgorithmException ex) {
+            Logger.getLogger(this.getClass()).error("KeyManagementException: " + ex.getMessage());
+        } catch (KeyStoreException ex) {
+            Logger.getLogger(this.getClass()).error("KeyStoreException: " + ex.getMessage());
+        } finally {
+            try {
+                if(null != httpclient){
+                    httpclient.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(this.getClass()).error("unable to close httpclient: " + ex.getMessage());
+            }
+        }
+        return resp;
+    }
+    
     public  String retrieveMerchantByCode(String subscriberInput, SubscriberInfo sub) {
         String resp = "";
         final CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            URI build = new URIBuilder(merchantDetails_URL + subscriberInput.trim()).build();
+            URI build = new URIBuilder(merchant_details_url + subscriberInput.trim()).build();
             final HttpPost httppost = new HttpPost(build);
             httppost.setHeader("Authorization", "Basic " + encoding);
             Logger.getLogger(this.getClass()).info("HttpGet string: " + httppost.toString());

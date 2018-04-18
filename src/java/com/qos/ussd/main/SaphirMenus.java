@@ -15,7 +15,6 @@ import com.qos.ussd.dto.UssdResponse;
 import static com.qos.ussd.main.USSDSessionHandler.activeSessions;
 import com.qos.ussd.util.AradHelper;
 import com.qos.ussd.util.HTTPUtil;
-import static com.qos.ussd.util.HTTPUtil.agencyList_URL;
 import com.qos.ussd.util.UssdConstants;
 import com.qos.ussd.util.arad.dto.Agency;
 import com.qos.ussd.util.arad.dto.TravelItenary;
@@ -47,6 +46,9 @@ public class SaphirMenus {
     
     private final Pattern datePattern = Pattern.compile("^\\d{8}$");
     private final DecimalFormat df = new DecimalFormat("#,##0.00");
+    final static String arad_agency_list_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_AGENCY_LIST_URL.toString());
+    final static String arad_travel_iternary_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRAVEL_ITENARY_URL.toString());
+    final static String arad_travel_times_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRAVEL_TIMES_URL.toString());
     
     public UssdResponse processRequest(SubscriberInfo sub, UssdRequest req){
         switch (sub.getMenuLevel()) {
@@ -100,7 +102,7 @@ public class SaphirMenus {
                 sub.setTransactionType(USSDSessionHandler.ARAD_MENUS.RESERVATION);//transactionType = ARAD_MENUS.RESERVATION;
                 sub.setAradDetails(new AradHelper());
                 //final ArrayList agencyList
-                final String agencyListString = new HTTPUtil().sendGetRequest(agencyList_URL);
+                final String agencyListString = new HTTPUtil().sendGetRequest(arad_travel_times_url);
                 final Gson gson = new Gson();
                 //logs = gson.fromJson(agencyListString, new TypeToken<List<Agency>>(){}.getType());
                 //final ArrayList<Agency> user = gson.fromJson(agencyListString, ArrayList.class);
@@ -175,7 +177,7 @@ public class SaphirMenus {
 //                sub.incrementMenuLevel();
 //                activeSessions.put(request.getMsisdn(), sub);
 //                return resp;
-                final String agencyListString = new HTTPUtil().sendGetRequest(HTTPUtil.travelItenary_URL+sub.getAgencyList().get(sub.getSelectedAgency()).getId());
+                final String agencyListString = new HTTPUtil().sendGetRequest(arad_travel_times_url+sub.getAgencyList().get(sub.getSelectedAgency()).getId());
                 final Gson gson = new Gson();
                 //logs = gson.fromJson(agencyListString, new TypeToken<List<Agency>>(){}.getType());
                 //final ArrayList<Agency> user = gson.fromJson(agencyListString, ArrayList.class);
@@ -251,7 +253,7 @@ public class SaphirMenus {
 //                sub.incrementMenuLevel();
 //                activeSessions.put(request.getMsisdn(), sub);
 //                return resp;
-                final String agencyListString = new HTTPUtil().sendGetRequest(HTTPUtil.travelTimes_URL+sub.getAgencyList().get(sub.getSelectedAgency()).getId());
+                final String agencyListString = new HTTPUtil().sendGetRequest(arad_travel_times_url+sub.getAgencyList().get(sub.getSelectedAgency()).getId());
                 final Gson gson = new Gson();
                 //logs = gson.fromJson(agencyListString, new TypeToken<List<Agency>>(){}.getType());
                 //final ArrayList<Agency> user = gson.fromJson(agencyListString, ArrayList.class);
@@ -641,6 +643,18 @@ public class SaphirMenus {
         } else {
             return HttpClients.createDefault();
         }
+    }
+
+    UssdResponse showMainMenu(SubscriberInfo sub) {
+        Logger.getLogger("qos_ussd_processor").info("showing sapphir main menu to: " + sub.getMsisdn());
+        final UssdResponse resp = new UssdResponse();
+        resp.setMsisdn(sub.getMsisdn());
+        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.TVM_MAIN_MENU.toString());
+        resp.setApplicationResponse(respMessage);
+        resp.setFreeflow(UssdConstants.CONTINUE);
+        sub.incrementMenuLevel();
+        activeSessions.put(sub.getMsisdn(), sub);
+        return resp;
     }
     
 }
