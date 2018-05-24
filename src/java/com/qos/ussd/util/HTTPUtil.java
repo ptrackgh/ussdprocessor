@@ -140,6 +140,49 @@ public class HTTPUtil {
         return resp;
     }
     
+    public String postUrlWithJson(JsonObject payload, String url) {
+        String resp = "";
+        CloseableHttpClient httpclient = null;// = getHttpClient(requestPayment_URL);
+        //final String url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.SAPHIR_GET_ACCOUNT_URL.toString());
+        try {
+            httpclient = getHttpClient(url);
+            URI build = new URIBuilder(url).build();
+            final HttpPost httppost = new HttpPost(build);
+//            httppost.setHeader("Authorization", "Basic " + encoding);
+//            httppost.addHeader("Content-Type", "application/json");
+            Logger.getLogger(this.getClass()).info("HttpPost payload: " + payload);
+            HttpEntity entity = new StringEntity(payload.toString());
+            httppost.setEntity(entity);
+            try (CloseableHttpResponse response1 = httpclient.execute(httppost)) {
+                Logger.getLogger(this.getClass()).info("status line: " + response1.getStatusLine());
+                HttpEntity entity1 = response1.getEntity();
+                Logger.getLogger(this.getClass()).info("Response from SAPHIR_GET_ACCOUNT_URL: " + response1.getStatusLine());
+                resp = EntityUtils.toString(entity1);
+                EntityUtils.consume(entity1);
+                response1.close();
+            }
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(this.getClass()).error("URISyntaxException: " + ex.getMessage());
+        } catch (UnsupportedOperationException ex) {
+            Logger.getLogger(this.getClass()).error("UnsupportedOperationException: " + ex.getMessage());
+        } catch (IOException ex) {
+            Logger.getLogger(this.getClass()).error("IOException: " + ex.getMessage());
+        } catch (KeyManagementException | NoSuchAlgorithmException ex) {
+            Logger.getLogger(this.getClass()).error("KeyManagementException: " + ex.getMessage());
+        } catch (KeyStoreException ex) {
+            Logger.getLogger(this.getClass()).error("KeyStoreException: " + ex.getMessage());
+        } finally {
+            try {
+                if(null != httpclient){
+                    httpclient.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(this.getClass()).error("unable to close httpclient: " + ex.getMessage());
+            }
+        }
+        return resp;
+    }
+    
     public  String retrieveMerchantByCode(String subscriberInput, SubscriberInfo sub) {
         String resp = "";
         final CloseableHttpClient httpclient = HttpClients.createDefault();

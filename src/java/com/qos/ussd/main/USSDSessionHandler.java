@@ -31,7 +31,10 @@ public class USSDSessionHandler {
         ARAD_ENTER_DEPARTURE_DATE, ARAD_SELECT_DEPARTURE_TIME, ARAD_NO_OF_PERSONS, ARAD_CONFIRM_PURCHASE, CANCEL_TRANSACTION,ARAD_SELECT_TIME, ARAD_SELECT_DESTINATION,
         ARAD_TRANSACTION_PROCESSING, DEPARTURE_DATE_IS_BEFORE_NOW, INVALID_DATE, DEPARTURE_AND_DESTINATION_SAME, ARAD_REQUEST_FAILED, TRANSACTION_FAILED,
         TVM_MAIN_MENU,TVM_IMPORT_TYPE,TVM_VEHICLE_REG,TVM_YEAR,TVM_CONFIRMATiON,TVM_CALCULATE_TAX_URL,
-        MERCHANT_DETAILS_USERNAME,MERCHANT_DETAILS_PASSWORD,MERCHANT_DETAILS_URL,REQUEST_PAYMENT_URL,ARAD_AGENCY_LIST_URL,ARAD_TRAVEL_ITENARY_URL,ARAD_TRAVEL_TIMES_URL
+        MERCHANT_DETAILS_USERNAME,MERCHANT_DETAILS_PASSWORD,MERCHANT_DETAILS_URL,REQUEST_PAYMENT_URL,ARAD_AGENCY_LIST_URL,ARAD_TRAVEL_ITENARY_URL,ARAD_TRAVEL_TIMES_URL,
+        //Saphir menu keys
+        SAPHIR_MAIN_MENU,SAPHIR_CHOOSE_METHOD,SAPHIR_ENTER_ACCOUNT,SAPHIR_ENTER_MSISDN,SAPHIR_CHOOSE_FUND,SAPHIR_ENTER_AMOUNT,SAPHIR_CONFIRM_PAYMENT,SAPHIR_NO_ACCOUNT,
+        SAPHIR_GET_ACCOUNT_URL,SAPHIR_COMMON_FUND_URL
     }
 
     public static final ConcurrentHashMap<String, SubscriberInfo> activeSessions = new ConcurrentHashMap<>();
@@ -88,7 +91,7 @@ public class USSDSessionHandler {
 //                    Logger.getLogger("qos_ussd_processor").info(String.format("removed {%s} from active sessions", request.getMsisdn()));
 //                    return resp;
 //            }
-        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("Sapphir")){
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("Saphir")){
             return new SaphirMenus().processRequest(sub, request);
         } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("TVM")){
             return new TaxMenus().processRequest(sub, request);
@@ -101,9 +104,9 @@ public class USSDSessionHandler {
 //                case 2:
 //                    return processLevel2Menu(sub);
                 case 2:
-                    return processLevel3Menu(sub);
+                    return processLevel2Menu(sub);
                 case 3:
-                    return processLevel4Menu(sub);
+                    return processLevel3Menu(sub);
                 default:
                     final UssdResponse resp = new UssdResponse();
                     resp.setMsisdn(request.getMsisdn());
@@ -153,7 +156,7 @@ public class USSDSessionHandler {
             return resp;
         } else if (request.getSubscriberInput().equalsIgnoreCase("TVM")) {
             return new TaxMenus().showMainMenu(sub);
-        } else if (request.getSubscriberInput().equalsIgnoreCase("Sapphir")) {
+        } else if (request.getSubscriberInput().equalsIgnoreCase("Saphir")) {
             return new SaphirMenus().showMainMenu(sub);
         } else {
             Logger.getLogger("qos_ussd_processor").info(String.format("{%s} found merchant {%s} with code {%s}",
@@ -200,7 +203,7 @@ public class USSDSessionHandler {
 //        }
 //    }
 
-    private UssdResponse processLevel3Menu(SubscriberInfo sub) {
+    private UssdResponse processLevel2Menu(SubscriberInfo sub) {
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
         try {
@@ -227,7 +230,7 @@ public class USSDSessionHandler {
         }
     }
 
-    private UssdResponse processLevel4Menu(SubscriberInfo sub) {
+    private UssdResponse processLevel3Menu(SubscriberInfo sub) {
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
         //final String accountdetails= retrieveAccountDetails(request.getSubscriberInput());

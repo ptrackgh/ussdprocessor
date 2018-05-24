@@ -239,6 +239,7 @@ public class AradMenus {
                     }
                     //sub.getAradDetails().setDeparture(UssdConstants.ARAD_DEPARTURE_LOCATIONS[option]);
                     sub.setSelectedTravelItenary(option - 1);
+                    Logger.getLogger("qos_ussd_processor").info("selected itenary {" + (option - 1) + "}");
                 } catch (NumberFormatException ex) {
                     respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                     resp.setApplicationResponse(respMessage);
@@ -557,8 +558,8 @@ public class AradMenus {
                         //requestPayment.addProperty("amount", sub.getTravelItenaryList().get(sub.getSelectedTravelItenary()).getPrice());
                         final StringBuilder transref = new StringBuilder();
                         transref.append("agence=").append(sub.getAgencyList().get(sub.getSelectedAgency()).getId()).append("|")
-                                .append("agence.tarif=").append(sub.getTravelItenaryList().get(sub.getSelectedAgency()).getId()).append("|")
-                                .append("agence.time=").append(sub.getTravelTimeList().get(sub.getSelectedAgency()).getId()).append("|")
+                                .append("agence.tarif=").append(sub.getTravelItenaryList().get(sub.getSelectedTravelItenary()).getId()).append("|")
+                                .append("agence.time=").append(sub.getTravelTimeList().get(sub.getSelectedTravelTime()).getId()).append("|")
                                 .append("person=").append(sub.getAradDetails().getPlaces()).append("|")
                                 .append("agence.date=").append(new SimpleDateFormat("yyyyMMdd").format(sub.getAradDetails().getDepartureDate())).append("|")
                                 .append("msisdn=").append(sub.getMsisdn()).append("|")
