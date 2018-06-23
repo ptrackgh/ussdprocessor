@@ -47,15 +47,65 @@ public class HTTPUtil {
     //public static final String travelItenary_URL = "http://arad-reservation.com/web/ws/agence.tarif/";
     //public static final String travelTimes_URL = "http://arad-reservation.com/web/ws/agence.time/";
 
-    
+    /** Production 
     final static String username = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_USERNAME.toString());
     final static String password = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_PASSWORD.toString());
     final String merchant_details_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_URL.toString());
     final String req_payment_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.REQUEST_PAYMENT_URL.toString());
+    /**/
+    
+    /** TestBed */
+    final static String username = "USR00";
+    final static String password = "YG739G5XFVPYYV4ADJVW";
+    final String merchant_details_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_URL.toString());
+    final String req_payment_url = "http://74.208.84.251:8221/QosicBridge/user/requestpayment";
+    /**/
     
     private static final String encoding = Base64.encodeBase64String((username + ":"+ password).getBytes());
     
     public String sendRequestPayment(JsonObject payload) {
+        String resp = "";
+        CloseableHttpClient httpclient = null;// = getHttpClient(requestPayment_URL);
+        try {
+            httpclient = getHttpClient(req_payment_url);
+            URI build = new URIBuilder(req_payment_url).build();
+            final HttpPost httppost = new HttpPost(build);
+            httppost.setHeader("Authorization", "Basic " + encoding);
+            httppost.addHeader("Content-Type", "application/json");
+            Logger.getLogger(this.getClass()).info("HttpPost payload: " + payload);
+            HttpEntity entity = new StringEntity(payload.toString());
+            httppost.setEntity(entity);
+            try (CloseableHttpResponse response1 = httpclient.execute(httppost)) {
+                Logger.getLogger(this.getClass()).info("status line: " + response1.getStatusLine());
+                HttpEntity entity1 = response1.getEntity();
+                Logger.getLogger(this.getClass()).info("Response from merchantDetails_URL: " + response1.getStatusLine());
+                resp = EntityUtils.toString(entity1);
+                EntityUtils.consume(entity1);
+                response1.close();
+            }
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(this.getClass()).error("URISyntaxException: " + ex.getMessage());
+        } catch (UnsupportedOperationException ex) {
+            Logger.getLogger(this.getClass()).error("UnsupportedOperationException: " + ex.getMessage());
+        } catch (IOException ex) {
+            Logger.getLogger(this.getClass()).error("IOException: " + ex.getMessage());
+        } catch (KeyManagementException | NoSuchAlgorithmException ex) {
+            Logger.getLogger(this.getClass()).error("KeyManagementException: " + ex.getMessage());
+        } catch (KeyStoreException ex) {
+            Logger.getLogger(this.getClass()).error("KeyStoreException: " + ex.getMessage());
+        } finally {
+            try {
+                if(null != httpclient){
+                    httpclient.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(this.getClass()).error("unable to close httpclient: " + ex.getMessage());
+            }
+        }
+        return resp;
+    }
+    
+    public String sendZexRequestPayment(JsonObject payload) {
         String resp = "";
         CloseableHttpClient httpclient = null;// = getHttpClient(requestPayment_URL);
         try {
@@ -230,6 +280,48 @@ public class HTTPUtil {
         } finally {
             try {
                 httpclient.close();
+            } catch (IOException ex) {
+                Logger.getLogger(this.getClass()).error("unable to close httpclient: " + ex.getMessage());
+            }
+        }
+        return resp;
+    }
+    
+    public String getList(JsonObject payload, String url) {
+        String resp = "";
+        CloseableHttpClient httpclient = null;// = getHttpClient(requestPayment_URL);
+        try {
+            httpclient = getHttpClient(url);
+            URI build = new URIBuilder(url).build();
+            final HttpPost httppost = new HttpPost(build);
+            //httppost.setHeader("Authorization", "Basic " + encoding);
+            httppost.addHeader("Content-Type", "application/json");
+            Logger.getLogger(this.getClass()).info("HttpPost payload: " + payload);
+            HttpEntity entity = new StringEntity(payload.toString());
+            httppost.setEntity(entity);
+            try (CloseableHttpResponse response1 = httpclient.execute(httppost)) {
+                Logger.getLogger(this.getClass()).info("status line: " + response1.getStatusLine());
+                HttpEntity entity1 = response1.getEntity();
+                Logger.getLogger(this.getClass()).info("Response from DELIVERY_ADDRESS_URL: " + response1.getStatusLine());
+                resp = EntityUtils.toString(entity1);
+                EntityUtils.consume(entity1);
+                response1.close();
+            }
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(this.getClass()).error("URISyntaxException: " + ex.getMessage());
+        } catch (UnsupportedOperationException ex) {
+            Logger.getLogger(this.getClass()).error("UnsupportedOperationException: " + ex.getMessage());
+        } catch (IOException ex) {
+            Logger.getLogger(this.getClass()).error("IOException: " + ex.getMessage());
+        } catch (KeyManagementException | NoSuchAlgorithmException ex) {
+            Logger.getLogger(this.getClass()).error("KeyManagementException: " + ex.getMessage());
+        } catch (KeyStoreException ex) {
+            Logger.getLogger(this.getClass()).error("KeyStoreException: " + ex.getMessage());
+        } finally {
+            try {
+                if(null != httpclient){
+                    httpclient.close();
+                }
             } catch (IOException ex) {
                 Logger.getLogger(this.getClass()).error("unable to close httpclient: " + ex.getMessage());
             }

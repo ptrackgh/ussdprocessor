@@ -172,7 +172,7 @@ public class TaxMenus {
                 double amount = tvmdetails.droitsimple + tvmdetails.penalite;
                 sub.getSubParams().put("AMOUNT", amount);
                 sub.setAmount(new BigDecimal(amount));
-                final String msg = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.TVM_CONFIRMATiON.toString()).replace("{AMOUNT}", response);
+                final String msg = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.TVM_CONFIRMATiON.toString()).replace("{AMOUNT}", sub.getAmount().toString());
                 resp.setApplicationResponse(msg);
                 resp.setFreeflow(UssdConstants.CONTINUE);
                 sub.incrementMenuLevel();

@@ -35,6 +35,7 @@ public class USSDSessionHandler {
     }
 
     public static final ConcurrentHashMap<String, SubscriberInfo> activeSessions = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, ZexpressInfo> activeSessions_Zex = new ConcurrentHashMap<>();
 //    private static final String merchantDetails_URL = "http://74.208.83.82:8221/QosicBridge/user/merchantsbycode/";
 //    private static final String requestPayment_URL = "https://74.208.83.82:8443/QosicBridge/user/requestpayment";
     
@@ -44,6 +45,10 @@ public class USSDSessionHandler {
 
     public enum ARAD_MENUS {
         RESERVATION, STATUS, REPORT
+    }
+    
+    public enum ZEXPRESS_MENUS {
+        GAZ, REPAS, FLEUR, TICKET_CINEMA
     }
 
     public USSDSessionHandler(UssdRequest request) {
@@ -57,10 +62,12 @@ public class USSDSessionHandler {
         }
         //get the subscriber info if this is an existing subc
         final SubscriberInfo sub = activeSessions.get(request.getMsisdn());
+        final ZexpressInfo zex = activeSessions_Zex.get(request.getMsisdn());
 //        final UssdResponse resp = new UssdResponse();
         //resp.setMsisdn(request.getMsisdn());
         if (sub.isIsAradMenu()) {
             return new AradMenus().processRequest(sub, request);
+            //return new ZexpressMenus().processRequest(sub, request);
 //            switch (sub.getMenuLevel()) {
 //                case 2:
 //                    return processAradLevel2Menu(sub);
@@ -92,11 +99,15 @@ public class USSDSessionHandler {
             return new SaphirMenus().processRequest(sub, request);
         } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("TVM")){
             return new TaxMenus().processRequest(sub, request);
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("AAVIE")){
+            return new AfricaineMenus().processRequest(sub, request);
+        }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("ZEXPRESS")){
+            return new ZexpressMenus().processRequest(zex, request);
         }
         else {
             switch (sub.getMenuLevel()) {
                 case 1:
-                    return processLevel1Menu(sub);
+                    return processLevel1Menu(sub, zex);
                 //break;
 //                case 2:
 //                    return processLevel2Menu(sub);
@@ -124,6 +135,10 @@ public class USSDSessionHandler {
         sub.setMenuLevel(1);
         sub.setMsisdn(request.getMsisdn());
         activeSessions.put(request.getMsisdn(), sub);
+        final ZexpressInfo zex = new ZexpressInfo();
+        zex.setMenuLevel(1);
+        zex.setMsisdn(request.getMsisdn());
+        activeSessions_Zex.put(request.getMsisdn(), zex);
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
         resp.setApplicationResponse(UssdConstants.MESSAGES.getProperty(MessageKey.WELCOME_MESSAGE.toString()));
@@ -131,7 +146,7 @@ public class USSDSessionHandler {
         return resp;
     }
 
-    private UssdResponse processLevel1Menu(SubscriberInfo sub) {
+    private UssdResponse processLevel1Menu(SubscriberInfo sub, ZexpressInfo zex) {
         //check the merchant code entered by the user:
         if (request.getSubscriberInput().equalsIgnoreCase("ARAD")) {
             return processAradLevel1Menu(sub);
@@ -139,8 +154,8 @@ public class USSDSessionHandler {
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
         final String merchantName = new HTTPUtil().retrieveMerchantByCode(request.getSubscriberInput(), sub);
-        sub.setMerchantName(merchantName);
-        sub.setMerchantCode(request.getSubscriberInput());
+        sub.setMerchantName(merchantName.toUpperCase());
+        sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
         //sub.setMsisdn(re);
         if (merchantName.equals("")) {
             Logger.getLogger("qos_ussd_processor").info("could not find merchant with code: " + request.getSubscriberInput());
@@ -153,8 +168,14 @@ public class USSDSessionHandler {
             return resp;
         } else if (request.getSubscriberInput().equalsIgnoreCase("TVM")) {
             return new TaxMenus().showMainMenu(sub);
+        } else if (request.getSubscriberInput().equalsIgnoreCase("AAVIE")) {
+            return new AfricaineMenus().showMainMenu(sub);
         } else if (request.getSubscriberInput().equalsIgnoreCase("Sapphir")) {
             return new SaphirMenus().showMainMenu(sub);
+        } else if (request.getSubscriberInput().equalsIgnoreCase("ZEXPRESS")) {
+            zex.setMerchantName(merchantName.toUpperCase());
+            zex.setMerchantCode(request.getSubscriberInput().toUpperCase());
+            return new ZexpressMenus().showMainMenu(zex);
         } else {
             Logger.getLogger("qos_ussd_processor").info(String.format("{%s} found merchant {%s} with code {%s}",
                     request.getMsisdn(), merchantName, request.getSubscriberInput()));

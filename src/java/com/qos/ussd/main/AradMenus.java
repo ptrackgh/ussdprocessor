@@ -506,9 +506,14 @@ public class AradMenus {
                     return resp;
                 }
                 String msg1 = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_CONFIRM_PURCHASE.toString());
-                //msg1 = msg1.replace("{AMOUNT}", "100F");
-                sub.setAmount(new BigDecimal(sub.getTravelItenaryList().get(sub.getSelectedTravelItenary()).getPrice())
-                        .multiply(new BigDecimal(sub.getAradDetails().getPlaces())));
+                msg1 = msg1.replace("{SEATS}", df.format(new BigDecimal(250).multiply(new BigDecimal(sub.getAradDetails().getPlaces())).doubleValue()));
+                msg1 = msg1.replace("{FEE}", df.format(new BigDecimal(sub.getTravelItenaryList().get(sub.getSelectedTravelItenary()).getPrice())
+                                .multiply(new BigDecimal(sub.getAradDetails().getPlaces()))));
+                sub.setAmount(
+                                new BigDecimal(sub.getTravelItenaryList().get(sub.getSelectedTravelItenary()).getPrice())
+                                .multiply(new BigDecimal(sub.getAradDetails().getPlaces()))
+                                .add(new BigDecimal(250).multiply(new BigDecimal(sub.getAradDetails().getPlaces())))
+                );
                 msg1 = msg1.replace("{AMOUNT}", df.format(sub.getAmount().doubleValue()));
                 Logger.getLogger("qos_ussd_processor").info("configured msg: " + msg1);
                 

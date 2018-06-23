@@ -3,18 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/util/MerchantDetailsResp.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/util/arad/dto/TVMResponse.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/main/TaxMenus.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/util/UssdConstants.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/main/AradMenus.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/util/arad/dto/TVMRequest.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/main/StartUpBean.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/util/MenuActions.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/util/HTTPUtil.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/dto/UssdRequest.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/main/ussdprocessor.java</file>
-            <file>file:/Users/ptrack/NetBeansProjects/ussdprocessor/src/java/com/qos/ussd/dto/UssdResponse.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/TaxMenus.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/ZexpressInfo.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/AfricaineMenus.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/USSDSessionHandler.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/zexpress/dto/MeterFees.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/ussdprocessor.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/AradMenus.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/ZexpressMenus.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/HTTPUtil.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/zexpress/dto/Address.java</file>
         </group>
     </open-files>
 </project-private>
