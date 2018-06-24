@@ -208,7 +208,7 @@ public class ZexpressMenus {
             activeSessions_Zex.put(request.getMsisdn(), zex);
         }catch (JsonSyntaxException ex) {
             Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-            final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+            final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
             resp.setApplicationResponse(resMessage);
             resp.setFreeflow(UssdConstants.BREAK);
             activeSessions_Zex.remove(request.getMsisdn());
@@ -421,14 +421,14 @@ public class ZexpressMenus {
                                     zex.setMealList(repas);
                                 }catch (JsonSyntaxException ex) {
                                     Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                                    final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(resMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                     activeSessions_Zex.remove(request.getMsisdn());
                                     return resp;
                                 }catch (Exception ex) {
                                     Logger.getLogger("processZexpressLevel1Menu").info("Exception encountered. Reason: " + ex.getMessage());
-                                    resp.setApplicationResponse("Votre commande a echouee. Veuillez reessayer plus tard.");
+                                    resp.setApplicationResponse("Votre demande a echouee. Veuillez reessayer plus tard.");
                                     resp.setFreeflow(UssdConstants.BREAK);
                                     activeSessions_Zex.remove(request.getMsisdn());
                                     return resp;
@@ -584,7 +584,7 @@ public class ZexpressMenus {
                 activeSessions_Zex.put(request.getMsisdn(), zex);
                 return resp;
             default:
-                msgResp = new StringBuilder("Veuillez choisir la ville de livraison: \n1. Electricité \n2. Eau");
+                msgResp = new StringBuilder("Veuillez choisir: \n1. Electricité \n2. Eau");
                 resp.setApplicationResponse(msgResp.toString());
                 zex.incrementMenuLevel();
                 resp.setFreeflow(UssdConstants.CONTINUE);
@@ -625,11 +625,11 @@ public class ZexpressMenus {
                     getMeterList.addProperty("menu", "meter");
                     getMeterList.addProperty("type", request.getMsisdn());
                 final String meterListString = new HTTPUtil().getList(getMeterList, url);
-                final ArrayList<Address> user = gson.fromJson(meterListString, new TypeToken<List<Address>>(){}.getType());
-                zex.setAddressList(user);
+                final ArrayList<Meters> user = gson.fromJson(meterListString, new TypeToken<List<Meters>>(){}.getType());
+                zex.setMetersList(user);
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -639,7 +639,7 @@ public class ZexpressMenus {
             switch(choice){
                 case 1:
                     zex.getSubParams().put("FACTURES", "Electricite");
-                    if(zex.getAddressList().isEmpty()){
+                    if(zex.getMetersList().isEmpty()){
                         final String respMessage = "Veuillez choisir le type de compteur: \n1. Conventionnel \n2. Recharge Code";
                         resp.setApplicationResponse(respMessage);
                         zex.incrementMenuLevel();
@@ -692,7 +692,7 @@ public class ZexpressMenus {
                 return resp;
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -724,7 +724,7 @@ public class ZexpressMenus {
                 return resp;
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -756,7 +756,7 @@ public class ZexpressMenus {
                 return resp;
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -788,7 +788,7 @@ public class ZexpressMenus {
                 return resp;
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -820,7 +820,7 @@ public class ZexpressMenus {
         
         if(menu.equalsIgnoreCase("FACTURES")){
             final int choice;
-            if(zex.getSubParams().get("FACTURES").equals("Electricite") && zex.getAddressList().isEmpty()){
+            if(zex.getSubParams().get("FACTURES").equals("Electricite") && zex.getMetersList().isEmpty()){
                 try {
                     choice = Integer.parseInt(request.getSubscriberInput());
                     if (choice < 1 || choice > 2) {
@@ -839,7 +839,7 @@ public class ZexpressMenus {
             
             //Json to get Previous Compteur
             try{
-                final ArrayList<Address> user = zex.getAddressList();
+                final ArrayList<Meters> user = zex.getMetersList();
                 
                 if(user.isEmpty()){
                     zex.getSubParams().put("COMPTEUR", 1);
@@ -899,7 +899,7 @@ public class ZexpressMenus {
                 return resp;
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -948,7 +948,7 @@ public class ZexpressMenus {
                 return resp;
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -1050,7 +1050,7 @@ public class ZexpressMenus {
                 case 2: 
                     final StringBuilder msgResp = new StringBuilder("Veuillez choisir un N° police compteur:");
                     int i=0;
-                    for(final Address meter: zex.getAddressList()){
+                    for(final Meters meter: zex.getMetersList()){
                         msgResp.append("\n").append(++i).append(". ").append(meter.getNom());
                     }
                     resp.setApplicationResponse(msgResp.toString());
@@ -1143,7 +1143,7 @@ public class ZexpressMenus {
                 }
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -1224,7 +1224,7 @@ public class ZexpressMenus {
                 return resp;
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -1275,14 +1275,36 @@ public class ZexpressMenus {
                 case 2: 
                     try {
                         choice = Integer.parseInt(request.getSubscriberInput());
-                        if (choice < 1 || choice > zex.getAddressList().size()) {
+                        if (choice < 1 || choice > zex.getMetersList().size()) {
                             throw new NumberFormatException();
                         }
-                        String str = "@" + zex.getAddressList().get(choice-1).getNom();
+                        String str = "@" + zex.getMetersList().get(choice-1).getNom();
                         zex.getSubParams().put("NUMERO_COMPTEUR", str);
+                        
+                        String[] sf = zex.getMetersList().get(choice-1).getSpecialfield1().split("\\|", -1);
+                        String[] compteurType = sf[2].split("=");
+                        String[] ville = sf[3].split("=");
+                        String[] proprietaire = sf[4].split("=");
+                        String[] contact = sf[5].split("=");
+                        String[] mail = sf[6].split("=");
+                        if(!compteurType[1].isEmpty() && !ville[1].isEmpty() && !proprietaire[1].isEmpty() && !contact[1].isEmpty() && !mail[1].isEmpty()){
+                            zex.getSubParams().put("COMPTEUR_TYPE", compteurType[1]);
+                            zex.getSubParams().put("VILLE", ville[1]);
+                            zex.getSubParams().put("PROPRIETAIRE", proprietaire[1]);
+                            zex.getSubParams().put("CONTACT", contact[1]);
+                            zex.getSubParams().put("MAIL", mail[1]);
+                        }
+                        
                     } catch (NumberFormatException ex) {
                         final String message = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                         resp.setApplicationResponse(message);
+                        resp.setFreeflow(UssdConstants.BREAK);
+                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions_Zex.remove(request.getMsisdn());
+                        return resp;
+                    } catch (Exception ex) {
+                        final String msg = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                        resp.setApplicationResponse(msg);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                         activeSessions_Zex.remove(request.getMsisdn());
@@ -1329,7 +1351,7 @@ public class ZexpressMenus {
                 zex.setAddressList(user);
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -1382,7 +1404,7 @@ public class ZexpressMenus {
                 zex.setAddressList(user);
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -1709,7 +1731,7 @@ public class ZexpressMenus {
                 zex.setAddressList(user);
             }catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 activeSessions_Zex.remove(request.getMsisdn());
@@ -2513,18 +2535,18 @@ public class ZexpressMenus {
                             final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                             if (response.equals("")) {
                                 Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                                final String respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                final String respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
                                 JsonParser parseResponse = new JsonParser();
                                 JsonObject jo = (JsonObject) parseResponse.parse(response);
                                 if (jo.get("responsecode").getAsString().equals("01")) {
-                                    final String respMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                                    final String respMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 } else {
-                                    final String respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    final String respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 }
@@ -2548,7 +2570,7 @@ public class ZexpressMenus {
                         return resp;
                     } catch (JsonSyntaxException ex) {
                         Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                        final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(resMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -2681,7 +2703,7 @@ public class ZexpressMenus {
                     if(user.isEmpty()) zex.getSubParams().put("FRAIS_COURSE", 0);
                 }catch (JsonSyntaxException ex) {
                     Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                    final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                    final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                     resp.setApplicationResponse(resMessage);
                     resp.setFreeflow(UssdConstants.BREAK);
                     activeSessions_Zex.remove(request.getMsisdn());
@@ -2758,18 +2780,18 @@ public class ZexpressMenus {
                             final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                             if (response.equals("")) {
                                 Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                                respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
                                 JsonParser parseResponse = new JsonParser();
                                 JsonObject jo = (JsonObject) parseResponse.parse(response);
                                 if (jo.get("responsecode").getAsString().equals("01")) {
-                                    respMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                                    respMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 } else {
-                                    respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 }
@@ -2793,7 +2815,7 @@ public class ZexpressMenus {
                         return resp;
                     } catch (JsonSyntaxException ex) {
                         Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                        final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(resMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -2878,18 +2900,18 @@ public class ZexpressMenus {
                             final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                             if (response.equals("")) {
                                 Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                                respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
                                 JsonParser parseResponse = new JsonParser();
                                 JsonObject jo = (JsonObject) parseResponse.parse(response);
                                 if (jo.get("responsecode").getAsString().equals("01")) {
-                                    respMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                                    respMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 } else {
-                                    respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 }
@@ -2913,7 +2935,7 @@ public class ZexpressMenus {
                         return resp;
                     } catch (JsonSyntaxException ex) {
                         Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                        final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(resMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -2996,18 +3018,18 @@ public class ZexpressMenus {
                             final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                             if (response.equals("")) {
                                 Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                                respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
                                 JsonParser parseResponse = new JsonParser();
                                 JsonObject jo = (JsonObject) parseResponse.parse(response);
                                 if (jo.get("responsecode").getAsString().equals("01")) {
-                                    respMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                                    respMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 } else {
-                                    respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 }
@@ -3031,7 +3053,7 @@ public class ZexpressMenus {
                         return resp;
                     } catch (JsonSyntaxException ex) {
                         Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                        final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(resMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -3149,6 +3171,8 @@ public class ZexpressMenus {
         resp.setMsisdn(request.getMsisdn());
         final String respMessage;
         final String menu = zex.getSubParams().get("MENU").toString();
+        Calendar now = Calendar.getInstance();
+        now.add(Calendar.MINUTE, 30);
         
         if(menu.equalsIgnoreCase("FACTURES")){
             try {
@@ -3170,19 +3194,15 @@ public class ZexpressMenus {
                             .append("quantity=").append("1").append("|")
                             .append("price=").append(zex.getAmount()).append("|")
                             .append("fee=").append(df.format(zex.getFrais().doubleValue())).append("|")
-                            .append("date=").append(df1.format(new Date())).append("|")
+                            .append("date=").append(df2.format(now.getTime())).append("|")
                             .append("nocompteur=").append(zex.getSubParams().get("NUMERO_COMPTEUR").toString()).append("|")
-                            .append("compteur=").append(zex.getSubParams().get("FACTURES").toString()).append("|");
-                    if(zex.getSubParams().get("FACTURES").equals("Electricite") && zex.getAddressList().isEmpty()){
-                        transref.append("compteurType=").append(zex.getSubParams().get("COMPTEUR_TYPE").toString()).append("|");
-                    }
-                    if(Integer.parseInt(zex.getSubParams().get("COMPTEUR").toString()) == 1){
-                        transref.append("ville=").append(ZexpressMenus.translate(zex.getSubParams().get("VILLE").toString())).append("|")
+                            .append("compteur=").append(zex.getSubParams().get("FACTURES").toString()).append("|")
+                            .append("compteurType=").append(zex.getSubParams().get("COMPTEUR_TYPE").toString()).append("|")
+                            .append("ville=").append(ZexpressMenus.translate(zex.getSubParams().get("VILLE").toString())).append("|")
                             .append("proprietaire=").append(ZexpressMenus.translate(zex.getSubParams().get("PROPRIETAIRE").toString())).append("|")
                             .append("contact=").append(zex.getSubParams().get("CONTACT").toString()).append("|")
-                            .append("mail=").append(ZexpressMenus.translate(zex.getSubParams().get("MAIL").toString())).append("|");
-                    }
-                    transref.append("sessionid=").append(request.getSessionId())
+                            .append("mail=").append(ZexpressMenus.translate(zex.getSubParams().get("MAIL").toString())).append("|")
+                            .append("sessionid=").append(request.getSessionId())
                     ;
                     requestPayment.addProperty("transref", request.getSessionId());
                     requestPayment.addProperty("specialfield1", transref.toString());
@@ -3191,18 +3211,18 @@ public class ZexpressMenus {
                     final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                     if (response.equals("")) {
                         Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                        respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(respMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                     } else {
                         JsonParser parseResponse = new JsonParser();
                         JsonObject jo = (JsonObject) parseResponse.parse(response);
                         if (jo.get("responsecode").getAsString().equals("01")) {
-                            respMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                            respMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                             resp.setApplicationResponse(respMessage);
                             resp.setFreeflow(UssdConstants.BREAK);
                         } else {
-                            respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                            respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                             resp.setApplicationResponse(respMessage);
                             resp.setFreeflow(UssdConstants.BREAK);
                         }
@@ -3226,7 +3246,7 @@ public class ZexpressMenus {
                 return resp;
             } catch (JsonSyntaxException ex) {
                 Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                 resp.setApplicationResponse(resMessage);
                 resp.setFreeflow(UssdConstants.BREAK);
                 Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -3271,18 +3291,18 @@ public class ZexpressMenus {
                             final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                             if (response.equals("")) {
                                 Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                                respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
                                 JsonParser parseResponse = new JsonParser();
                                 JsonObject jo = (JsonObject) parseResponse.parse(response);
                                 if (jo.get("responsecode").getAsString().equals("01")) {
-                                    respMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                                    respMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 } else {
-                                    respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 }
@@ -3306,7 +3326,7 @@ public class ZexpressMenus {
                         return resp;
                     } catch (JsonSyntaxException ex) {
                         Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                        final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(resMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -3359,18 +3379,18 @@ public class ZexpressMenus {
                             final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                             if (response.equals("")) {
                                 Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                                respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
                                 JsonParser parseResponse = new JsonParser();
                                 JsonObject jo = (JsonObject) parseResponse.parse(response);
                                 if (jo.get("responsecode").getAsString().equals("01")) {
-                                    respMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                                    respMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 } else {
-                                    respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 }
@@ -3394,7 +3414,7 @@ public class ZexpressMenus {
                         return resp;
                     } catch (JsonSyntaxException ex) {
                         Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                        final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(resMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -3448,18 +3468,18 @@ public class ZexpressMenus {
                             final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                             if (response.equals("")) {
                                 Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                                final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                 resp.setApplicationResponse(resMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
                                 JsonParser parseResponse = new JsonParser();
                                 JsonObject jo = (JsonObject) parseResponse.parse(response);
                                 if (jo.get("responsecode").getAsString().equals("01")) {
-                                    final String resMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                                    final String resMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                                     resp.setApplicationResponse(resMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 } else {
-                                    final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(resMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 }
@@ -3483,7 +3503,7 @@ public class ZexpressMenus {
                         return resp;
                     } catch (JsonSyntaxException ex) {
                         Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                        final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(resMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -3588,18 +3608,18 @@ public class ZexpressMenus {
                             final String response = new HTTPUtil().sendZexRequestPayment(requestPayment);
                             if (response.equals("")) {
                                 Logger.getLogger("qos_ussd_processor").info("sendZexRequestPayment returned empty response");
-                                respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
                                 JsonParser parseResponse = new JsonParser();
                                 JsonObject jo = (JsonObject) parseResponse.parse(response);
                                 if (jo.get("responsecode").getAsString().equals("01")) {
-                                    respMessage = "Votre commande est en cours de traitement. Vous recevrez une demande de paiement dans un instant.";
+                                    respMessage = "Votre demande est en cours de traitement. Vous recevrez une demande de paiement dans un instant si votre solde est suffisant.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 } else {
-                                    respMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                                    respMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                                     resp.setApplicationResponse(respMessage);
                                     resp.setFreeflow(UssdConstants.BREAK);
                                 }
@@ -3623,7 +3643,7 @@ public class ZexpressMenus {
                         return resp;
                     } catch (JsonSyntaxException ex) {
                         Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                        final String resMessage = "Votre commande a echouee. Veuillez reessayer plus tard.";
+                        final String resMessage = "Votre demande a echouee. Veuillez reessayer plus tard.";
                         resp.setApplicationResponse(resMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());

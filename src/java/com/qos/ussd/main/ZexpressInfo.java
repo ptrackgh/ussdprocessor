@@ -66,7 +66,8 @@ public class ZexpressInfo {
     private HashMap<String, Object> subParams = new HashMap<>();
     
     private ArrayList<Address> addressList;
-    //private int selectedAddress;
+    private ArrayList<Meters> metersList;
+    private int selectedMeter;
     
     private ArrayList<Delivery> deliveryList;
     private int selectedDelivery;
@@ -311,6 +312,22 @@ public class ZexpressInfo {
 
     public void setPaidOrdersList(ArrayList<PaidOrders> paidOrdersList) {
         this.paidOrdersList = paidOrdersList;
+    }
+
+    public ArrayList<Meters> getMetersList() {
+        return metersList;
+    }
+
+    public void setMetersList(ArrayList<Meters> metersList) {
+        this.metersList = metersList;
+    }
+
+    public int getSelectedMeter() {
+        return selectedMeter;
+    }
+
+    public void setSelectedMeter(int selectedMeter) {
+        this.selectedMeter = selectedMeter;
     }
     
     
