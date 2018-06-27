@@ -45,7 +45,7 @@ import org.apache.log4j.Logger;
 public class AradMenus {
     
     private final Pattern datePattern = Pattern.compile("^\\d{8}$");
-    private final DecimalFormat df = new DecimalFormat("#,##0.00");
+    private final DecimalFormat df = new DecimalFormat("#,##0");//new DecimalFormat("#,##0.00");
     final static String arad_agency_list_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_AGENCY_LIST_URL.toString());
     final static String arad_travel_iternary_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRAVEL_ITENARY_URL.toString());
     final static String arad_travel_times_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRAVEL_TIMES_URL.toString());
