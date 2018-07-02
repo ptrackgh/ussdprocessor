@@ -2686,6 +2686,7 @@ public class ZexpressMenus {
         if(menu.equalsIgnoreCase("FACTURES")){
             
             try {
+                zex.getSubParams().put("AMOUNT_ON_BILL", Integer.valueOf(request.getSubscriberInput()));
                 zex.getSubParams().put("MONTANT", (int) ceil(Integer.valueOf(request.getSubscriberInput()) / 5.0) * 5);
 
                 //Json to get List of Meter fees
@@ -3202,6 +3203,7 @@ public class ZexpressMenus {
                             .append("proprietaire=").append(ZexpressMenus.translate(zex.getSubParams().get("PROPRIETAIRE").toString())).append("|")
                             .append("contact=").append(zex.getSubParams().get("CONTACT").toString()).append("|")
                             .append("mail=").append(ZexpressMenus.translate(zex.getSubParams().get("MAIL").toString())).append("|")
+                            .append("montant=").append(zex.getSubParams().get("AMOUNT_ON_BILL").toString()).append("|")
                             .append("sessionid=").append(request.getSessionId())
                     ;
                     requestPayment.addProperty("transref", request.getSessionId());
