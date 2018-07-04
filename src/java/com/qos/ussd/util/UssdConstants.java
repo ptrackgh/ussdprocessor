@@ -54,4 +54,6 @@ public class UssdConstants {
     public static final String[] ARAD_DEPARTURE_TIMES={"","07:00","11:00","15:00","19:00","21:00"};
     public static final String[] TVM_TAX_TYPE={"","TVMTP","TVMS","TVMTPP","TVMTPM","TVMTC"};
     public static final String[] TVM_PAYER_TYPE={"","P","E"};
+    public static final String[] DELIVERY_ADDRESS_LIST={"", "Place Lénine, CDPA", "Ganhi, Le Berlin"};
+    public static final String[] AFRICAINE_PAYMENT_TYPE={"", "m", "a"};
 }
