@@ -49,6 +49,7 @@ public class AradMenus {
     final static String arad_agency_list_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_AGENCY_LIST_URL.toString());
     final static String arad_travel_iternary_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRAVEL_ITENARY_URL.toString());
     final static String arad_travel_times_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRAVEL_TIMES_URL.toString());
+    private final Pattern phonePattern = Pattern.compile("^\\d{10,12}$");
     
     public UssdResponse processRequest(SubscriberInfo sub, UssdRequest req){
         switch (sub.getMenuLevel()) {
@@ -66,6 +67,10 @@ public class AradMenus {
                     return processAradLevel7Menu(sub, req);
                 case 8:
                     return processAradLevel8Menu(sub, req);
+                case 9:
+                    return processAradLevel9Menu(sub, req);
+                case 10:
+                    return processAradLevel10Menu(sub, req);
                 default:
                     final UssdResponse resp = new UssdResponse();
                     resp.setMsisdn(req.getMsisdn());
@@ -425,6 +430,117 @@ public class AradMenus {
                 return resp;
         }
     }
+    
+    private UssdResponse processAradLevel7Menu(SubscriberInfo sub, UssdRequest request) {
+        Logger.getLogger("qos_ussd_processor").info("Arad menu level7 for " + request.getMsisdn());
+        final UssdResponse resp = new UssdResponse();
+        resp.setMsisdn(request.getMsisdn());
+        String respMessage;
+        //if (null != transactionType) {
+        switch (sub.getTransactionType()) {
+            case RESERVATION:
+                final int option;
+                try {
+                    option = Integer.parseInt(request.getSubscriberInput());
+                    sub.getAradDetails().setPlaces(option);
+                    final String response = new HTTPUtil().sendGetRequest("http://www.arad-reservation.com/web/ws/agence.date/" + sub.getAgencyList().get(sub.getSelectedAgency()).getId() +"/"+ sub.getTravelItenaryList().get(sub.getSelectedTravelItenary()).getId() +"/"+ new SimpleDateFormat("yyyy-MM-dd").format(sub.getAradDetails().getDepartureDate()) +"/"+ sub.getAradDetails().getPlaces());
+                    JsonParser parseResponse = new JsonParser();
+                    JsonObject jo = (JsonObject) parseResponse.parse(response);
+                    if(jo.get("response").getAsBoolean() == false){
+                        throw new NumberFormatException();
+                    }
+                } catch (NumberFormatException | JsonSyntaxException ex) {
+                    respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                    activeSessions.remove(request.getMsisdn());
+                    return resp;
+                }
+                
+                respMessage = "Voulez-vous payer à partir de: \n1. Compte Principal \n2. Compte ARAD";
+                resp.setApplicationResponse(respMessage);
+                resp.setFreeflow(UssdConstants.CONTINUE);
+                sub.incrementMenuLevel();
+                activeSessions.put(request.getMsisdn(), sub);
+                return resp;
+            case STATUS:
+                respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                resp.setApplicationResponse(respMessage);
+                resp.setFreeflow(UssdConstants.BREAK);
+                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                activeSessions.remove(request.getMsisdn());
+                return resp;
+            default:
+                respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                resp.setApplicationResponse(respMessage);
+                resp.setFreeflow(UssdConstants.BREAK);
+                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                activeSessions.remove(request.getMsisdn());
+                return resp;
+        }
+    }
+    
+    private UssdResponse processAradLevel8Menu(SubscriberInfo sub, UssdRequest request) {
+        Logger.getLogger("qos_ussd_processor").info("Arad menu level8 for " + request.getMsisdn());
+        final UssdResponse resp = new UssdResponse();
+        resp.setMsisdn(request.getMsisdn());
+        String respMessage;
+        //if (null != transactionType) {
+        switch (sub.getTransactionType()) {
+            case RESERVATION:
+                final int option;
+                try {
+                    option = Integer.parseInt(request.getSubscriberInput());
+                    if (option < 1 || option > 2) {
+                        throw new NumberFormatException();
+                    }
+                    sub.getAradDetails().setAccountOption(option);
+                } catch (NumberFormatException ex) {
+                    respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                    activeSessions.remove(request.getMsisdn());
+                    return resp;
+                }
+                
+                switch(option){
+                    case 1: 
+                        sub.incrementMenuLevel();
+                        return processAradLevel9Menu(sub, request);
+                    case 2: 
+                        respMessage = "Entrez votre numéro de téléphone: ";
+                        resp.setApplicationResponse(respMessage);
+                        resp.setFreeflow(UssdConstants.CONTINUE);
+                        sub.incrementMenuLevel();
+                        activeSessions.put(request.getMsisdn(), sub);
+                        return resp;
+                    default:
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                        resp.setApplicationResponse(respMessage);
+                        resp.setFreeflow(UssdConstants.BREAK);
+                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
+                }
+                
+            case STATUS:
+                respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                resp.setApplicationResponse(respMessage);
+                resp.setFreeflow(UssdConstants.BREAK);
+                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                activeSessions.remove(request.getMsisdn());
+                return resp;
+            default:
+                respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                resp.setApplicationResponse(respMessage);
+                resp.setFreeflow(UssdConstants.BREAK);
+                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                activeSessions.remove(request.getMsisdn());
+                return resp;
+        }
+    }
 
 //    private UssdResponse processAradLevel7Menu(SubscriberInfo sub, UssdRequest request) {
 //        Logger.getLogger("qos_ussd_processor").info("Arad menu level7 for " + request.getMsisdn());
@@ -486,7 +602,7 @@ public class AradMenus {
 //    }
 
     //private UssdResponse processAradLevel8Menu(SubscriberInfo sub, UssdRequest request) {
-    private UssdResponse processAradLevel7Menu(SubscriberInfo sub, UssdRequest request) {
+    private UssdResponse processAradLevel9Menu(SubscriberInfo sub, UssdRequest request) {
         Logger.getLogger("qos_ussd_processor").info("Arad menu level8 for " + request.getMsisdn());
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
@@ -494,17 +610,34 @@ public class AradMenus {
         //if (null != transactionType) {
         switch (sub.getTransactionType()) {
             case RESERVATION:
-                final int option;
-                try {
-                    option = Integer.parseInt(request.getSubscriberInput());
-                    sub.getAradDetails().setPlaces(option);
-                } catch (NumberFormatException ex) {
-                    respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                    resp.setApplicationResponse(respMessage);
-                    resp.setFreeflow(UssdConstants.BREAK);
-                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                    activeSessions.remove(request.getMsisdn());
-                    return resp;
+                if(sub.getAradDetails().getAccountOption() == 2){
+                    final int option;
+                    try {
+                        if (phonePattern.matcher(request.getSubscriberInput()).matches()) {
+                            throw new NumberFormatException();
+                        }
+                        option = Integer.parseInt(request.getSubscriberInput());
+                        sub.getAradDetails().setMsisdn("229".concat(request.getSubscriberInput()));
+                        final String response = new HTTPUtil().sendGetRequest("http://www.arad-reservation.com/web/ws/agence.number/" + option);
+                        JsonParser parseResponse = new JsonParser();
+                        JsonObject jo = (JsonObject) parseResponse.parse(response);
+                        if(jo.get("response").getAsBoolean() == false){
+                            throw new NumberFormatException();
+                        }
+                    } catch (NumberFormatException ex) {
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                        resp.setApplicationResponse(respMessage);
+                        resp.setFreeflow(UssdConstants.BREAK);
+                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
+                    } catch (Exception ex) {
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                        resp.setApplicationResponse(respMessage);
+                        resp.setFreeflow(UssdConstants.BREAK);
+                        Logger.getLogger("qos_ussd_processor").info("invalid input entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions.remove(request.getMsisdn());
+                    }
                 }
                 String msg1 = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_CONFIRM_PURCHASE.toString());
                 msg1 = msg1.replace("{SEATS}", df.format(new BigDecimal(250).multiply(new BigDecimal(sub.getAradDetails().getPlaces())).doubleValue()));
@@ -542,7 +675,7 @@ public class AradMenus {
     }
 
     //private UssdResponse processAradLevel9Menu(SubscriberInfo sub, UssdRequest request) {
-    private UssdResponse processAradLevel8Menu(SubscriberInfo sub, UssdRequest request) {
+    private UssdResponse processAradLevel10Menu(SubscriberInfo sub, UssdRequest request) {
         Logger.getLogger("qos_ussd_processor").info("Arad menu level9 for " + request.getMsisdn());
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
@@ -558,7 +691,11 @@ public class AradMenus {
 
                         Logger.getLogger("qos_ussd_processor").info("processing arad transaction for{" + sub.getAradDetails().toString() + "} by" + request.getMsisdn());
                         JsonObject requestPayment = new JsonObject();
-                        requestPayment.addProperty("msisdn", sub.getMsisdn());
+                        if(sub.getAradDetails().getAccountOption() == 2){
+                            requestPayment.addProperty("msisdn", sub.getAradDetails().getMsisdn());
+                        }else{
+                            requestPayment.addProperty("msisdn", sub.getMsisdn());
+                        }
                         requestPayment.addProperty("amount", sub.getAmount());
                         //requestPayment.addProperty("amount", sub.getTravelItenaryList().get(sub.getSelectedTravelItenary()).getPrice());
                         final StringBuilder transref = new StringBuilder();
@@ -568,6 +705,8 @@ public class AradMenus {
                                 .append("person=").append(sub.getAradDetails().getPlaces()).append("|")
                                 .append("agence.date=").append(new SimpleDateFormat("yyyyMMdd").format(sub.getAradDetails().getDepartureDate())).append("|")
                                 .append("msisdn=").append(sub.getMsisdn()).append("|")
+                                .append("account=").append(sub.getAradDetails().getAccountOption()).append("|")
+                                .append("aradNumber=").append(sub.getAradDetails().getMsisdn()).append("|")
                                 .append("sessionid=").append(request.getSessionId());
                         requestPayment.addProperty("transref", request.getSessionId());
                         //requestPayment.addProperty("transref", transref.toString());

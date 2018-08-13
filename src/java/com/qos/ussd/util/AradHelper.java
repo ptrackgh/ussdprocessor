@@ -18,6 +18,8 @@ public class AradHelper {
     private String departureTime;
     private String destination;
     private int places;
+    private int accountOption;
+    private String msisdn;
 
     public String getCompany() {
         return company;
@@ -66,6 +68,23 @@ public class AradHelper {
     public void setPlaces(int places) {
         this.places = places;
     }
+
+    public int getAccountOption() {
+        return accountOption;
+    }
+
+    public void setAccountOption(int accountOption) {
+        this.accountOption = accountOption;
+    }
+
+    public String getMsisdn() {
+        return msisdn;
+    }
+
+    public void setMsisdn(String msisdn) {
+        this.msisdn = msisdn;
+    }
+    
     
     @Override
     public String toString() {
