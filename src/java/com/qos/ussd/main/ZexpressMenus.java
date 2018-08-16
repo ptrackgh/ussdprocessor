@@ -584,7 +584,7 @@ public class ZexpressMenus {
                 activeSessions_Zex.put(request.getMsisdn(), zex);
                 return resp;
             default:
-                msgResp = new StringBuilder("Commande 24H/24 - Code et Quittance 8H-16H. Info. 65159898 \nVeuillez choisir: \n1. Electricité \n2. Eau");
+                msgResp = new StringBuilder("Commande 24H/24 - Code et Quittance 8H-16H/11H W_E. Info. 65159898 \nVeuillez choisir: \n1. Electricité \n2. Eau");
                 resp.setApplicationResponse(msgResp.toString());
                 zex.incrementMenuLevel();
                 resp.setFreeflow(UssdConstants.CONTINUE);
