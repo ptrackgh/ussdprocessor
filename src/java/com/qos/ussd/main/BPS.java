@@ -52,7 +52,8 @@ public class BPS {
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
         try {
-            if (phonePattern.matcher(request.getSubscriberInput()).matches()) {
+            final String number = normalize(request.getSubscriberInput());
+            if (null==number) {
                 throw new NumberFormatException();
             }
             sub.getSubParams().put("PHONE_NUMBER", request.getSubscriberInput());
@@ -62,7 +63,7 @@ public class BPS {
             sub.incrementMenuLevel();
             activeSessions.put(request.getMsisdn(), sub);
         } catch (NumberFormatException ex) {
-            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_PHONE_NO.toString());
             resp.setApplicationResponse(respMessage);
             resp.setFreeflow(UssdConstants.BREAK);
             Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
@@ -131,7 +132,7 @@ public class BPS {
         requestPayment.addProperty("amount", sub.getAmount());
         requestPayment.addProperty("transref", sessionid);
         requestPayment.addProperty("clientid", sub.getMerchantCode());
-
+        Logger.getLogger("qos_ussd_processor").info("sendRequestPayment body: "+requestPayment.toString());
         final String response = new HTTPUtil().sendRequestPayment(requestPayment);
         if (response.equals("")) {
             Logger.getLogger("qos_ussd_processor").info("sendRequestPayment returned empty response");
@@ -162,6 +163,18 @@ public class BPS {
         //sub.setMerchantName();
         activeSessions.put(sub.getMsisdn(), sub);
         return resp;
+    }
+    
+    public String normalize(String number){
+        if(number.length()==11 && number.startsWith("229")){
+            return number;
+        }else if(number.length()==8){
+            return "229"+number;
+        }else if(number.startsWith("0") && number.length()==9){
+            return "229"+number.substring(1);
+        }else{
+            return null;
+        }
     }
 
 }

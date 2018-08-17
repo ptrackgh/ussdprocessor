@@ -34,7 +34,7 @@ public class StartUpBean {
             logger.info("messages have been loaded from: "+languagePath);
         } catch (IOException e) {
             //DAMN! I'm not....
-            logger.info("could not load messages from: "+languagePath+". Reason:s "+e.getMessage());
+            logger.info("could not load messages from: "+languagePath+". Reason: "+e.getMessage());
         }
     }
 

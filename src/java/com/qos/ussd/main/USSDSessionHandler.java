@@ -35,7 +35,7 @@ public class USSDSessionHandler {
         //Saphir menu keys
         SAPHIR_MAIN_MENU,SAPHIR_CHOOSE_METHOD,SAPHIR_ENTER_ACCOUNT,SAPHIR_ENTER_MSISDN,SAPHIR_CHOOSE_FUND,SAPHIR_ENTER_AMOUNT,SAPHIR_CONFIRM_PAYMENT,SAPHIR_NO_ACCOUNT,
         SAPHIR_GET_ACCOUNT_URL,SAPHIR_COMMON_FUND_URL,
-        BPS_ENTER_AMOUNT,BPS_MAIN_MENU,BPS_CONFIRM_TRANSACTION
+        BPS_ENTER_AMOUNT,BPS_MAIN_MENU,BPS_CONFIRM_TRANSACTION,INVALID_PHONE_NO
     }
 
     public static final ConcurrentHashMap<String, SubscriberInfo> activeSessions = new ConcurrentHashMap<>();
@@ -107,6 +107,8 @@ public class USSDSessionHandler {
             return new AfricaineMenus().processRequest(sub, request);
         }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("ZEXPRESS")){
             return new ZexpressMenus().processRequest(zex, request);
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("BPS")){
+            return new BPS().processRequest(sub, request);
         }
         else {
             switch (sub.getMenuLevel()) {
