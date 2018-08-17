@@ -109,6 +109,8 @@ public class USSDSessionHandler {
             return new ZexpressMenus().processRequest(zex, request);
         } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("BPS")){
             return new BPS().processRequest(sub, request);
+        }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("EG")){
+            return new EugenioMenus().processRequest(sub, request);
         }
         else {
             switch (sub.getMenuLevel()) {
@@ -181,6 +183,10 @@ public class USSDSessionHandler {
             zex.setMerchantName(merchantName.toUpperCase());
             zex.setMerchantCode(request.getSubscriberInput().toUpperCase());
             return new ZexpressMenus().showMainMenu(zex);
+        }else if(request.getSubscriberInput().equalsIgnoreCase("EG")){
+            sub.setMerchantName(merchantName.toUpperCase());
+            sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
+            return new EugenioMenus().showMainMenu(sub);
         } else {
             Logger.getLogger("qos_ussd_processor").info(String.format("{%s} found merchant {%s} with code {%s}",
                     request.getMsisdn(), merchantName, request.getSubscriberInput()));
