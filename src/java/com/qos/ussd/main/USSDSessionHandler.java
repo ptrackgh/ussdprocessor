@@ -172,6 +172,8 @@ public class USSDSessionHandler {
             Logger.getLogger("qos_ussd_processor").info(String.format("removed {%s} from active sessions", request.getMsisdn()));
             return resp;
         } else if (request.getSubscriberInput().equalsIgnoreCase("BPS")) {
+            sub.setMerchantName(merchantName.toUpperCase());
+            sub.setMerchantCode(request.getSubscriberInput().toUpperCase()); 
             return new BPS().showMainMenu(sub);
         } else if (request.getSubscriberInput().equalsIgnoreCase("TVM")) {
             return new TaxMenus().showMainMenu(sub);

@@ -56,7 +56,7 @@ public class BPS {
             if (null==number) {
                 throw new NumberFormatException();
             }
-            sub.getSubParams().put("PHONE_NUMBER", request.getSubscriberInput());
+            sub.getSubParams().put("PHONE_NUMBER", number);
             sub.setAccountNo(request.getSubscriberInput());
             resp.setApplicationResponse(UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.BPS_ENTER_AMOUNT.toString()));
             resp.setFreeflow(UssdConstants.CONTINUE);
@@ -155,7 +155,7 @@ public class BPS {
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(sub.getMsisdn());
         //BPS_MAIN_MENU=Welcome to {MERCHANT_NAME}. Enter phone number:
-        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.BPS_MAIN_MENU.toString())
+        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.BPS_MAIN_MENU.toString()) 
                 .replace("{MERCHANT_NAME}", sub.getMerchantName());
         resp.setApplicationResponse(respMessage);
         resp.setFreeflow(UssdConstants.CONTINUE);
@@ -170,6 +170,10 @@ public class BPS {
             return number;
         }else if(number.length()==8){
             return "229"+number;
+        }else if(number.startsWith("00") && number.length()==13){
+            return number.substring(2);
+        }else if(number.startsWith("+") && number.length()==12){
+            return number.substring(1);
         }else if(number.startsWith("0") && number.length()==9){
             return "229"+number.substring(1);
         }else{
