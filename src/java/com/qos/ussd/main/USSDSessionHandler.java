@@ -111,6 +111,8 @@ public class USSDSessionHandler {
             return new BPS().processRequest(sub, request);
         }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("EG")){
             return new EugenioMenus().processRequest(sub, request);
+        }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("SCHOOL")){
+            return new SchoolMenus().processRequest(sub, request);
         }
         else {
             switch (sub.getMenuLevel()) {
@@ -189,6 +191,10 @@ public class USSDSessionHandler {
             sub.setMerchantName(merchantName.toUpperCase());
             sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
             return new EugenioMenus().showMainMenu(sub);
+        } else if(request.getSubscriberInput().equalsIgnoreCase("SCHOOL")){
+            sub.setMerchantName(merchantName.toUpperCase());
+            sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
+            return new SchoolMenus().showMainMenu(sub);
         } else {
             Logger.getLogger("qos_ussd_processor").info(String.format("{%s} found merchant {%s} with code {%s}",
                     request.getMsisdn(), merchantName, request.getSubscriberInput()));
