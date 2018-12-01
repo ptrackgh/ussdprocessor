@@ -1047,11 +1047,11 @@ public class ZexpressMenus {
             switch(Integer.parseInt(zex.getSubParams().get("COMPTEUR").toString())){
                 case 1:
                     final String respMessage;
-                    if(zex.getSubParams().get("FACTURES").equals("Electricite")){
+                    /*if(zex.getSubParams().get("FACTURES").equals("Electricite")){*/
                         respMessage = "Numero Compteur (11 chiffres)";
-                    }else{
+                    /*}else{
                         respMessage = "Numero de police:";
-                    }
+                    }*/
                     resp.setApplicationResponse(respMessage);
                     resp.setFreeflow(UssdConstants.CONTINUE);
                     zex.incrementMenuLevel();
@@ -1059,11 +1059,11 @@ public class ZexpressMenus {
                     return resp;
                 case 2: 
                     final StringBuilder msgResp;
-                    if(zex.getSubParams().get("FACTURES").equals("Electricite")){
+                    /*if(zex.getSubParams().get("FACTURES").equals("Electricite")){*/
                         msgResp = new StringBuilder("Numero Compteur (11 chiffres)");
-                    }else{
+                    /*}else{
                         msgResp = new StringBuilder("Numero de police:");
-                    }
+                    }*/
                     int i=0;
                     for(final Meters meter: zex.getMetersList()){
                         msgResp.append("\n").append(++i).append(". ").append(meter.getNom());
@@ -1281,14 +1281,14 @@ public class ZexpressMenus {
                         activeSessions_Zex.remove(request.getMsisdn());
                         return resp;
                     }
-                    /*final String respMessage = "Veuillez entrer ville et quartier compteur:";
+                    final String respMessage = "Numero de police:";
                     resp.setApplicationResponse(respMessage);
                     resp.setFreeflow(UssdConstants.CONTINUE);
                     zex.incrementMenuLevel();
                     activeSessions_Zex.put(zex.getMsisdn(), zex);
-                    return resp;*/
-                    zex.setMenuLevel(7);
-                    return processZexpressLevel7Menu(zex, request);
+                    return resp;
+                    /*zex.setMenuLevel(7);
+                    return processZexpressLevel7Menu(zex, request);*/
                     
                 case 2: 
                     try {
@@ -1551,6 +1551,16 @@ public class ZexpressMenus {
                 activeSessions_Zex.remove(request.getMsisdn());
                 return resp;
             }*/ 
+            try {
+                zex.getSubParams().put("NUMERO_POLICE", request.getSubscriberInput());
+            } catch (Exception ex) {
+                final String message = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                resp.setApplicationResponse(message);
+                resp.setFreeflow(UssdConstants.BREAK);
+                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                activeSessions_Zex.remove(request.getMsisdn());
+                return resp;
+            }
             final String respMessage = "Nom du propriétaire du compteur:";
             resp.setApplicationResponse(respMessage);
             resp.setFreeflow(UssdConstants.CONTINUE);
@@ -2719,7 +2729,7 @@ public class ZexpressMenus {
                     final ArrayList<MeterFees> user = gson.fromJson(addressListString, new TypeToken<List<MeterFees>>(){}.getType());
                     int i = Integer.valueOf(zex.getSubParams().get("MONTANT").toString());
                     for(MeterFees meter : user){
-                        if (i > meter.getDebut() && i < meter.getFin()) zex.getSubParams().put("FRAIS_COURSE", meter.getFrais());
+                        if (i >= meter.getDebut() && i <= meter.getFin()) zex.getSubParams().put("FRAIS_COURSE", meter.getFrais());
                     }
                     if(user.isEmpty()) zex.getSubParams().put("FRAIS_COURSE", 0);
                 }catch (JsonSyntaxException ex) {
@@ -3228,6 +3238,7 @@ public class ZexpressMenus {
                             .append("contact=").append(".").append("|")
                             .append("mail=").append(".").append("|")
                             .append("montant=").append(zex.getSubParams().get("AMOUNT_ON_BILL").toString()).append("|")
+                            .append("nopolice=").append(zex.getSubParams().get("NUMERO_POLICE").toString()).append("|")
                             .append("sessionid=").append(request.getSessionId())
                     ;
                     requestPayment.addProperty("transref", request.getSessionId());

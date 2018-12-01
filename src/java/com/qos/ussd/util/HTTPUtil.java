@@ -47,14 +47,14 @@ public class HTTPUtil {
     //public static final String travelItenary_URL = "http://arad-reservation.com/web/ws/agence.tarif/";
     //public static final String travelTimes_URL = "http://arad-reservation.com/web/ws/agence.time/";
 
-    /** Production */
+    /** Production 
     final static String username = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_USERNAME.toString());
     final static String password = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_PASSWORD.toString());
     final String merchant_details_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_URL.toString());
     final String req_payment_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.REQUEST_PAYMENT_URL.toString());
     /**/
     
-    /** TestBed 
+    /** TestBed */
     final static String username = "USR00";
     final static String password = "YG739G5XFVPYYV4ADJVW";
     final String merchant_details_url = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.MERCHANT_DETAILS_URL.toString());

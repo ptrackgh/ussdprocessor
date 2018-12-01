@@ -111,7 +111,7 @@ public class USSDSessionHandler {
             return new BPS().processRequest(sub, request);
         }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("EG")){
             return new EugenioMenus().processRequest(sub, request);
-        }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("SCHOOL")){
+        }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("SCHOOL")){//.contains("SCHOOL".toLowerCase())){
             return new SchoolMenus().processRequest(sub, request);
         }
         else {
@@ -191,7 +191,7 @@ public class USSDSessionHandler {
             sub.setMerchantName(merchantName.toUpperCase());
             sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
             return new EugenioMenus().showMainMenu(sub);
-        } else if(request.getSubscriberInput().equalsIgnoreCase("SCHOOL")){
+        } else if(request.getSubscriberInput().equalsIgnoreCase("SCHOOL")){//.contains("SCHOOL".toLowerCase())){
             sub.setMerchantName(merchantName.toUpperCase());
             sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
             return new SchoolMenus().showMainMenu(sub);
