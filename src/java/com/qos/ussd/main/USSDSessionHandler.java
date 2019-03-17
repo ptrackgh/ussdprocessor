@@ -105,13 +105,17 @@ public class USSDSessionHandler {
             return new TaxMenus().processRequest(sub, request);
         } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("AAVIE")){
             return new AfricaineMenus().processRequest(sub, request);
-        }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("ZEXPRESS")){
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("FINANCIA")){
+            return new FinanciaMenus().processRequest(sub, request);
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("SUNU")){
+            return new SunuMenus().processRequest(sub, request);
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("ZEXPRESS")){
             return new ZexpressMenus().processRequest(zex, request);
         } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("BPS")){
             return new BPS().processRequest(sub, request);
-        }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("EG")){
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("EG")){
             return new EugenioMenus().processRequest(sub, request);
-        }else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("SCHOOL")){//.contains("SCHOOL".toLowerCase())){
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("SCHOOL")){//.contains("SCHOOL".toLowerCase())){
             return new SchoolMenus().processRequest(sub, request);
         }
         else {
@@ -133,6 +137,31 @@ public class USSDSessionHandler {
                     return resp;
             }
         }
+    }
+    
+    public UssdResponse sunuprocessRequest() {
+        //get the subscriber info if this is an existing subc
+        final SubscriberInfo sub = activeSessions.get(request.getMsisdn());
+   
+        Logger.getLogger("qos_ussd_processor").info("showing sunu main menu to: " + sub.getMsisdn());
+        final UssdResponse resp = new UssdResponse();
+        resp.setMsisdn(sub.getMsisdn());
+        final String respMessage = "Veuillez choisir une opération : \n1. Paiement primes\n2. Souscription\n3. Demande de prestation\n4. Autres";//UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.TVM_MAIN_MENU.toString());
+        resp.setApplicationResponse(respMessage);
+        resp.setFreeflow(UssdConstants.CONTINUE);
+        sub.incrementMenuLevel();
+        //sub.setMerchantName();
+        activeSessions.put(sub.getMsisdn(), sub);
+        return resp;
+        /*sub.setMenuLevel(1);
+        sub.setMsisdn(request.getMsisdn());
+        activeSessions.put(request.getMsisdn(), sub);
+        //final UssdResponse resp = new UssdResponse();
+        //resp.setMsisdn(request.getMsisdn());
+        final String merchantName = new HTTPUtil().retrieveMerchantByCode("SUNU", sub);
+        sub.setMerchantName(merchantName.toUpperCase());
+        sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
+        return new SunuMenus().showMainMenu(sub);*/
     }
 
     private UssdResponse sendWelcomeMessage() {
@@ -183,11 +212,19 @@ public class USSDSessionHandler {
             return new AfricaineMenus().showMainMenu(sub);
         } else if (request.getSubscriberInput().equalsIgnoreCase("Saphir")) {
             return new SaphirMenus().showMainMenu(sub);
+        } else if (request.getSubscriberInput().equalsIgnoreCase("FINANCIA")) {
+            sub.setMerchantName(merchantName.toUpperCase());
+            sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
+            return new FinanciaMenus().showMainMenu(sub);
+        } else if (request.getSubscriberInput().equalsIgnoreCase("SUNU")) {
+            sub.setMerchantName(merchantName.toUpperCase());
+            sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
+            return new SunuMenus().showMainMenu(sub);
         } else if (request.getSubscriberInput().equalsIgnoreCase("ZEXPRESS")) {
             zex.setMerchantName(merchantName.toUpperCase());
             zex.setMerchantCode(request.getSubscriberInput().toUpperCase());
             return new ZexpressMenus().showMainMenu(zex);
-        }else if(request.getSubscriberInput().equalsIgnoreCase("EG")){
+        } else if(request.getSubscriberInput().equalsIgnoreCase("EG")){
             sub.setMerchantName(merchantName.toUpperCase());
             sub.setMerchantCode(request.getSubscriberInput().toUpperCase());
             return new EugenioMenus().showMainMenu(sub);

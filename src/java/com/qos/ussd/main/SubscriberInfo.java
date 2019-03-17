@@ -10,6 +10,7 @@ import com.qos.ussd.util.MerchantDetailsResp;
 import com.qos.ussd.util.arad.dto.Agency;
 import com.qos.ussd.util.arad.dto.TravelItenary;
 import com.qos.ussd.util.arad.dto.TravelTime;
+import com.qos.ussd.util.sunu.dto.Contrat;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ public class SubscriberInfo {
     private ArrayList<TravelTime> travelTimeList;
     private int selectedTravelTime;
     
+    private ArrayList<Contrat> contrat;
+    private int selectedcontrat;
     
     private boolean isAradMenu;
     private boolean isDepartureToday;
@@ -261,6 +264,13 @@ public class SubscriberInfo {
     public void setSubParams(HashMap<String, Object> subParams) {
         this.subParams = subParams;
     }
-    
+
+    public int getSelectedcontrat() {
+        return selectedcontrat;
+    }
+
+    public void setSelectedcontrat(int selectedcontrat) {
+        this.selectedcontrat = selectedcontrat;
+    }
     
 }

@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.qos.ussd.main;
+package com.sunu.ussd.main;
 
+import com.qos.ussd.main.*;
 import com.qos.ussd.dto.UssdRequest;
 import com.qos.ussd.dto.UssdResponse;
+import static com.qos.ussd.main.USSDSessionHandler.activeSessions;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -25,7 +27,9 @@ import org.apache.log4j.Logger;
  *
  * @author ptrack
  */
-public class ussdprocessor extends HttpServlet {
+public class sunuprocessor extends HttpServlet {
+    
+    //public static final ConcurrentHashMap<String, SubscriberInfo> activeSessions = new ConcurrentHashMap<>();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -46,17 +50,19 @@ public class ussdprocessor extends HttpServlet {
                     Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
                     req = (UssdRequest) unmarshaller.unmarshal(request.getInputStream());
                 } catch (JAXBException | IOException ex) {
-                    Logger.getLogger("qos_ussd_processor").error("error occured: "+ex.getMessage());
+                    Logger.getLogger("qos_ussd_sunu_processor").error("error occured: "+ex.getMessage());
                     Logger.getLogger(this.getClass()).error("JAXBException|IOException " + ex + " by " + Arrays.toString(ex.getStackTrace()).replaceAll(", ", "\n"));
                     return ;
                 }
-            Logger.getLogger("ussdcdrs").info(req);
-            Logger.getLogger("qos_ussd_processor").info("req received= "+req);
+            Logger.getLogger("ussdsunucdrs").info(req);
+            Logger.getLogger("qos_ussd_sunu_processor").info("req received= "+req);
             if(null != req.getType() && req.getType().equals("cleanup")){
-                Logger.getLogger("qos_ussd_processor").info("cleanup req received= "+req);
+                Logger.getLogger("qos_ussd_sunu_processor").info("cleanup req received= "+req);
                 return;
             }
             
+            
+            //sub.setMsisdn(req.getMsisdn());
             UssdResponse resp= new USSDSessionHandler(req).processRequest();
 //            if(USSDSessionHandler.activeSessions.containsKey(req.getMsisdn())){
 //                resp = USSDSessionHandler.activeSessions.get(req.getMsisdn()).processRequest();
@@ -68,10 +74,10 @@ public class ussdprocessor extends HttpServlet {
                     JAXBContext jaxbContext = JAXBContext.newInstance(UssdResponse.class);
                     Marshaller m = jaxbContext.createMarshaller();
                     m.marshal(resp, out);
-                    Logger.getLogger("ussdcdrs").info(resp);
-                    Logger.getLogger("qos_ussd_processor").info(resp);
+                    Logger.getLogger("ussdsunucdrs").info(resp);
+                    Logger.getLogger("qos_ussd_sunu_processor").info(resp);
                 } catch (JAXBException ex) {
-                    Logger.getLogger("qos_ussd_processor").error("error occured while marshalling response: "+ex.getMessage());
+                    Logger.getLogger("qos_ussd_sunu_processor").error("error occured while marshalling response: "+ex.getMessage());
                     Logger.getLogger(this.getClass()).error("JAXBException " + ex + " by " + Arrays.toString(ex.getStackTrace()).replaceAll(", ", "\n"));
                     //return ;
                 }

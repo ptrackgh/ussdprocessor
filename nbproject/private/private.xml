@@ -5,10 +5,12 @@
         <group>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/USSDSessionHandler.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/zexpress/dto/MeterFees.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/eugenio/dto/Bouquet.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/StartUpBean.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/TaxMenus.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/ZexpressInfo.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/AfricaineMenus.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/sunu/dto/Contrat.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/arad/dto/Agency.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/zexpress/dto/Meters.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/ussdprocessor.java</file>
@@ -17,9 +19,12 @@
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/HTTPUtil.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/zexpress/dto/Address.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/AradHelper.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/SunuMenus.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/EugenioMenus.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/UssdConstants.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/BPS.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/SubscriberInfo.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/sunu/dto/Infocontrat.java</file>
         </group>
     </open-files>
 </project-private>

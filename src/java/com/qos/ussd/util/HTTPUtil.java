@@ -371,4 +371,52 @@ public class HTTPUtil {
         }
         return resp;
     }
+
+    public String retrieveMerchantByCode(String subscriberInput, com.sunu.ussd.main.SubscriberInfo sub) {
+        String resp = "";
+        final CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            URI build = new URIBuilder(merchant_details_url + subscriberInput.trim()).build();
+            final HttpPost httppost = new HttpPost(build);
+            httppost.setHeader("Authorization", "Basic " + encoding);
+            Logger.getLogger(this.getClass()).info("HttpGet string: " + httppost.toString());
+            try (CloseableHttpResponse response1 = httpclient.execute(httppost)) {
+                Logger.getLogger(this.getClass()).info("status line: " + response1.getStatusLine());
+                HttpEntity entity1 = response1.getEntity();
+                Logger.getLogger(this.getClass()).info("Response from merchantDetails_URL: " + response1.getStatusLine());
+                if (response1.getStatusLine().getStatusCode() == 200) {
+                    try {
+                        String httpResp = EntityUtils.toString(entity1);
+                        Gson gson = new Gson();
+                        final MerchantDetailsResp user = gson.fromJson(httpResp, MerchantDetailsResp.class);
+                        sub.setMerchantDetails(user);
+                        resp = user.getName();
+                    } catch (IOException ex) {
+                        Logger.getLogger(this.getClass()).error("IOException|ParseException parsing response from smsgh: " + ex.getMessage());
+                        Logger.getLogger(this.getClass()).error("IOException | ParseException " + Arrays.toString(ex.getStackTrace()).replaceAll(", ", "\n"));
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(this.getClass()).error("NumberFormatException parsing response from smsgh: " + ex.getMessage());
+                    } catch (ConstraintViolationException ex) {
+                        Logger.getLogger(this.getClass()).error("ConstraintViolationException " + Arrays.toString(ex.getConstraintViolations().toArray()));
+                        Logger.getLogger(this.getClass()).error("ConstraintViolationException " + ex + " by " + Arrays.toString(ex.getStackTrace()).replaceAll(", ", "\n"));
+                    }
+                }
+                EntityUtils.consume(entity1);
+                response1.close();
+            }
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(this.getClass()).error("URISyntaxException: " + ex.getMessage());
+        } catch (UnsupportedOperationException ex) {
+            Logger.getLogger(this.getClass()).error("UnsupportedOperationException: " + ex.getMessage());
+        } catch (IOException ex) {
+            Logger.getLogger(this.getClass()).error("IOException: " + ex.getMessage());
+        } finally {
+            try {
+                httpclient.close();
+            } catch (IOException ex) {
+                Logger.getLogger(this.getClass()).error("unable to close httpclient: " + ex.getMessage());
+            }
+        }
+        return resp;
+    }
 }

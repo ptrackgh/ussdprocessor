@@ -4,9 +4,18 @@
         <servlet-name>ussdprocessor</servlet-name>
         <servlet-class>com.qos.ussd.main.ussdprocessor</servlet-class>
     </servlet>
+    <servlet>
+        <description>SUNU USSD</description>
+        <servlet-name>sunuprocessor</servlet-name>
+        <servlet-class>com.sunu.ussd.main.sunuprocessor</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ussdprocessor</servlet-name>
         <url-pattern>/processor</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>sunuprocessor</servlet-name>
+        <url-pattern>/sunu/processor</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

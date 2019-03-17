@@ -1305,10 +1305,17 @@ public class ZexpressMenus {
                         String[] proprietaire = sf[4].split("=");
                         String[] contact = sf[5].split("=");
                         String[] mail = sf[6].split("=");
-                        if(!compteurType[1].isEmpty() && !ville[1].isEmpty() && !proprietaire[1].isEmpty() && !contact[1].isEmpty() && !mail[1].isEmpty()){
-                            zex.getSubParams().put("COMPTEUR_TYPE", compteurType[1]);
-                            zex.getSubParams().put("VILLE", ville[1]);
+                        
+                        try{
+                            if(!compteurType[1].isEmpty()) zex.getSubParams().put("COMPTEUR_TYPE", compteurType[1]);
+                        } catch(Exception ex) {
+                            zex.getSubParams().put("COMPTEUR_TYPE", "");
+                        }
+                        
+                        if(/*!compteurType[1].isEmpty() &&*/ !ville[1].isEmpty() && !proprietaire[1].isEmpty() && !contact[1].isEmpty() && !mail[1].isEmpty()){
+                            //zex.getSubParams().put("COMPTEUR_TYPE", compteurType[1]);
                             zex.getSubParams().put("PROPRIETAIRE", proprietaire[1]);
+                            zex.getSubParams().put("VILLE", ville[1]);
                             zex.getSubParams().put("CONTACT", contact[1]);
                             zex.getSubParams().put("MAIL", mail[1]);
                         }
@@ -2741,7 +2748,7 @@ public class ZexpressMenus {
                     return resp;
                 }
                 double response = Integer.sum(Integer.valueOf(zex.getSubParams().get("MONTANT").toString()), Integer.valueOf(zex.getSubParams().get("FRAIS_COURSE").toString()));
-                double frais = (int) response * 0.017;
+                double frais = ceil((int) response * 0.017);
                 response = Double.sum(response, frais);
                 zex.getSubParams().put("FRAIS", frais);
                 zex.setAmount(new BigDecimal(Math.round((float) response)));
@@ -3730,5 +3737,9 @@ public class ZexpressMenus {
         //zex.setMerchantName();
         activeSessions_Zex.put(zex.getMsisdn(), zex);
         return resp;
+    }
+
+    private boolean isset(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

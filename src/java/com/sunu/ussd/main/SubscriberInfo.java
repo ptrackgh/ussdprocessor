@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.qos.ussd.main;
+package com.sunu.ussd.main;
 
 import com.qos.ussd.util.AradHelper;
 import com.qos.ussd.util.MerchantDetailsResp;
 import com.qos.ussd.util.arad.dto.Agency;
 import com.qos.ussd.util.arad.dto.TravelItenary;
 import com.qos.ussd.util.arad.dto.TravelTime;
+import com.qos.ussd.util.sunu.dto.Contrat;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ public class SubscriberInfo {
     private ArrayList<TravelTime> travelTimeList;
     private int selectedTravelTime;
     
+    private ArrayList<Contrat> contrat;
+    private int selectedcontrat;
     
     private boolean isAradMenu;
     private boolean isDepartureToday;
@@ -51,13 +54,13 @@ public class SubscriberInfo {
         this.isAradMenu = isAradMenu;
     }
 
-    public USSDSessionHandler.ARAD_MENUS getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(USSDSessionHandler.ARAD_MENUS transactionType) {
-        this.transactionType = transactionType;
-    }
+//    public USSDSessionHandler.ARAD_MENUS getTransactionType() {
+//        return transactionType;
+//    }
+//
+//    public void setTransactionType(USSDSessionHandler.ARAD_MENUS transactionType) {
+//        this.transactionType = transactionType;
+//    }
 
     public AradHelper getAradDetails() {
         return aradDetails;
@@ -66,7 +69,7 @@ public class SubscriberInfo {
     public void setAradDetails(AradHelper aradDetails) {
         this.aradDetails = aradDetails;
     }
-    private USSDSessionHandler.ARAD_MENUS transactionType;
+//    private USSDSessionHandler.ARAD_MENUS transactionType;
     private AradHelper aradDetails;
     
 
@@ -261,6 +264,13 @@ public class SubscriberInfo {
     public void setSubParams(HashMap<String, Object> subParams) {
         this.subParams = subParams;
     }
-    
+
+    public int getSelectedcontrat() {
+        return selectedcontrat;
+    }
+
+    public void setSelectedcontrat(int selectedcontrat) {
+        this.selectedcontrat = selectedcontrat;
+    }
     
 }
