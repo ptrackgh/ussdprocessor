@@ -39,7 +39,19 @@ public class FinanciaMenus {
             case 3:
                 return processFinanciaLevel3Menu(sub, req);
             case 4:
-                return processFinanciaLevel2Menu(sub, req);
+                return processFinanciaLevel4Menu(sub, req);
+            case 5:
+                return processFinanciaLevel5Menu(sub, req);
+            case 6:
+                return processFinanciaLevel6Menu(sub, req);
+            case 7:
+                return processFinanciaLevel7Menu(sub, req);
+            case 8:
+                return processFinanciaLevel8Menu(sub, req);
+            case 9:
+                return processFinanciaLevel9Menu(sub, req);
+            case 10:
+                return processFinanciaLevel10Menu(sub, req);
             default:
                 final UssdResponse resp = new UssdResponse();
                 resp.setMsisdn(req.getMsisdn());

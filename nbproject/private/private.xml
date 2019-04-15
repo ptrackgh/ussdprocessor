@@ -14,6 +14,7 @@
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/arad/dto/Agency.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/zexpress/dto/Meters.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/ussdprocessor.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/sunu/ussd/main/USSDSessionHandler.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/AradMenus.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/ZexpressMenus.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/HTTPUtil.java</file>
@@ -21,6 +22,7 @@
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/AradHelper.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/SunuMenus.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/EugenioMenus.java</file>
+            <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/FinanciaMenus.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/util/UssdConstants.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/BPS.java</file>
             <file>file:/C:/wamp/www/ussdprocessor/src/java/com/qos/ussd/main/SubscriberInfo.java</file>

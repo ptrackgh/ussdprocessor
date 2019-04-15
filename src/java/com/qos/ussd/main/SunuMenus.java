@@ -144,6 +144,7 @@ public class SunuMenus {
     private UssdResponse processSunulevel3Menu(SubscriberInfo sub, UssdRequest request) {
         Logger.getLogger("qos_ussd_processor").info("Sunu menu level3 for " + request.getMsisdn());
         final UssdResponse resp = new UssdResponse();
+        final Gson gson = new Gson();
         //final int option;
         final ArrayList<Contrat> options = (ArrayList<Contrat>) sub.getSubParams().get("CONTRATS");
         try {
@@ -152,17 +153,43 @@ public class SunuMenus {
                 throw new NumberFormatException();
             }
             sub.getSubParams().put("CONTRAT_OPTION", options.get(input - 1));
-            final String msg = "Affichage du détails du contrat \n" + options.get(input - 1).getLabel() + "\n\n#. Suivant";
-            resp.setApplicationResponse(msg);
-            resp.setFreeflow(UssdConstants.CONTINUE);
-            sub.incrementMenuLevel();
-            activeSessions.put(request.getMsisdn(), sub);
-            return resp;
+            
+            final String listString = new HTTPUtil().sendGetRequest("http://benin.vie.sunu-group.com/Site/mtnservice/func.php?r=infocontrat&id=" + options.get(input - 1).getId());
+            
+            if(listString.isEmpty()){
+                final String msg = "Ce numéro n'est pas authorisé";
+                resp.setApplicationResponse(msg);
+                resp.setFreeflow(UssdConstants.BREAK);
+                Logger.getLogger("qos_ussd_processor").info("unauthorized number supplied for sunu request: " + request.getMsisdn());
+                activeSessions.remove(request.getMsisdn());
+            }else{
+                String[] partslistString = listString.split("ï»¿");
+                String json = partslistString[1];
+                Infocontrat[] user = gson.fromJson(json, Infocontrat[].class);
+                sub.getSubParams().put("INFOCONTRAT", user[0]);
+                final String msg = "Affichage du détails du contrat "
+                    + "\nAssuré : " +  user[0].getAssure()
+                    + "\nProduit : " + user[0].getProduit()
+                    + "\nPrime : " + user[0].getPrime()
+                    + "\n\n#. Suivant";
+                resp.setApplicationResponse(msg);
+                resp.setFreeflow(UssdConstants.CONTINUE);
+                sub.incrementMenuLevel();
+                activeSessions.put(request.getMsisdn(), sub);
+                return resp;
+            }
 
         } catch (NumberFormatException ex) {
             resp.setApplicationResponse(UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString()));
             resp.setFreeflow(UssdConstants.BREAK);
             Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+            activeSessions.remove(request.getMsisdn());
+            return resp;
+        }catch (JsonSyntaxException ex) {
+            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+            resp.setApplicationResponse(respMessage);
+            resp.setFreeflow(UssdConstants.BREAK);
+            Logger.getLogger("qos_ussd_processor").info("invalid input entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
             activeSessions.remove(request.getMsisdn());
             return resp;
         }catch (Exception ex) {
@@ -172,6 +199,7 @@ public class SunuMenus {
             activeSessions.remove(request.getMsisdn());
             return resp;
         }
+        return resp;
     }
     
     private UssdResponse processSunulevel4Menu(SubscriberInfo sub, UssdRequest request) {
