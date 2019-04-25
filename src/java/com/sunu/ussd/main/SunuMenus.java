@@ -287,6 +287,7 @@ public class SunuMenus {
 
                 final StringBuilder transref = new StringBuilder();
                 transref.append("request=").append(sub.getSubParams().get("MENU_CHOICE").toString()).append("|")
+                        .append("msisdn=").append(sub.getMsisdn()).append("|")
                         .append("request=").append(contrat.getId()).append("|")
                         .append("amount=").append(sub.getAmount()).append("|")
                         .append("sessionid=").append(request.getSessionId());
