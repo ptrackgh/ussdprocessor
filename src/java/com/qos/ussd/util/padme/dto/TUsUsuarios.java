@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.qos.ussd.util.sunu.dto;
+package com.qos.ussd.util.padme.dto;
 
+//import com.qos.ussd.util.padme.dto.*;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -12,44 +13,52 @@ import com.google.gson.annotations.SerializedName;
  *
  * @author Malkiel
  */
-public class Infocontrat {
-    @SerializedName("assure")
+public class TUsUsuarios {
+    @SerializedName("email")
     @Expose
-    private String assure;
-    @SerializedName("produit")
+    private String email;
+    @SerializedName("telephone")
     @Expose
-    private String produit;
-    @SerializedName("prime")
+    private int telephone;
+    @SerializedName("codUsuario")
     @Expose
-    private String prime;
+    private String codUsuario;
 
-    public String getAssure() {
-        return assure;
+    public String getEmail() {
+        return email;
     }
 
-    public void setAssure(String assure) {
-        this.assure = assure;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getProduit() {
-        return produit;
+    public int getTelephone() {
+        return telephone;
     }
 
-    public void setProduit(String produit) {
-        this.produit = produit;
+    public void setTelephone(int telephone) {
+        this.telephone = telephone;
     }
 
-    public String getPrime() {
-        return prime;
+    public String getCodUsuario() {
+        return codUsuario;
     }
 
-    public void setPrime(String prime) {
-        this.prime = prime;
+    public void setCodUsuario(String codUsuario) {
+        this.codUsuario = codUsuario;
+    }
+
+    public TUsUsuarios(String email, int telephone, String codUsuario) {
+        this.email = email;
+        this.telephone = telephone;
+        this.codUsuario = codUsuario;
     }
 
     @Override
     public String toString() {
-        return "Infocontrat{" + "assure=" + assure + ", produit=" + produit + ", prime=" + prime + '}';
+        return "TUsUsuarios{" + "email=" + email + ", telephone=" + telephone + ", codUsuario=" + codUsuario + '}';
     }
+
+    
     
 }

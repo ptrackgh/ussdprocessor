@@ -99,6 +99,8 @@ public class USSDSessionHandler {
 //                    Logger.getLogger("qos_ussd_processor").info(String.format("removed {%s} from active sessions", request.getMsisdn()));
 //                    return resp;
 //            }
+        } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("Padme")){
+            return new PadmeMenus().processRequest(sub, request);
         } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("Saphir")){
             return new SaphirMenus().processRequest(sub, request);
         } else if(null != sub.getMerchantCode() && sub.getMerchantCode().equalsIgnoreCase("TVM")){
@@ -206,6 +208,10 @@ public class USSDSessionHandler {
             sub.setMerchantName(merchantName.toUpperCase());
             sub.setMerchantCode(request.getSubscriberInput().toUpperCase()); 
             return new BPS().showMainMenu(sub);
+        } else if (request.getSubscriberInput().equalsIgnoreCase("Padme")) {
+            sub.setMerchantName(merchantName.toUpperCase());
+            sub.setMerchantCode(request.getSubscriberInput().toUpperCase()); 
+            return new PadmeMenus().showMainMenu(sub);
         } else if (request.getSubscriberInput().equalsIgnoreCase("TVM")) {
             return new TaxMenus().showMainMenu(sub);
         } else if (request.getSubscriberInput().equalsIgnoreCase("AAVIE")) {
