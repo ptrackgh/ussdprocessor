@@ -453,614 +453,602 @@ public class PadmeMenus {
         Logger.getLogger("qos_ussd_processor").info("Padme menu level4 for " + request.getMsisdn());
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
-        final int itemId, operation, operationType;
+        final int itemId, operation, operationType, compteType1, option;
         final String listString;
         final Gson gson = new Gson();
 
         itemId = Integer.parseInt(sub.getSubParams().get("itemId").toString());
         switch (itemId) {
-            //Ouverture
+            //Depôt
             case 1:
-                sub.getSubParams().put("epargneNom", request.getSubscriberInput()); //epargneNom
-                resp.setApplicationResponse("Epargne\n"
-                        + "Entrez votre prenom: ");
-                resp.setFreeflow(UssdConstants.CONTINUE);
-                sub.incrementMenuLevel();
-                activeSessions.put(request.getMsisdn(), sub);
-                return resp;
-            //Connexion
+                compteType1  = Integer.parseInt(sub.getSubParams().get("compteType1").toString());
+                try {
+                    double amount = Double.parseDouble(request.getSubscriberInput());
+                    sub.getSubParams().put("montant", amount); //montant
+                    sub.setAmount(new BigDecimal(amount));
+                    //BPS_CONFIRM_TRANSACTION=Debit of {AMOUNT} from {PHONE_NUMBER}. Enter 1 to confirm:
+                    Logger.getLogger("qos_ussd_processor").info(String.format("{%s} entered {%s} amount",
+                            request.getMsisdn(), request.getSubscriberInput()));
+                    final String respMessage = "Transfert de xxxxx fcfa de votre compte momo sur votre compte padme épargne à vue.\nFrais : xxxxxxxx fcfa"
+                            .replace("{AMOUNT}", amount + " XOF").replace("{PHONE_NUMBER}", sub.getSubParams().get("PHONE_NUMBER").toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.CONTINUE);
+                    sub.incrementMenuLevel();
+                    activeSessions.put(request.getMsisdn(), sub);
+                    return resp;
+                } catch (NumberFormatException ex) {
+                    Logger.getLogger("qos_ussd_processor").info(request.getMsisdn() + " entered invalid amount : " + request.getSubscriberInput());
+                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_AMOUNT.toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    activeSessions.remove(request.getMsisdn());
+                    Logger.getLogger("qos_ussd_processor").info(String.format("removed {%s} from active sessions", request.getMsisdn()));
+                    return resp;
+                }
+            //Retrait
             case 2:
-                operation = Integer.parseInt(sub.getSubParams().get("operation").toString());
+                compteType1  = Integer.parseInt(sub.getSubParams().get("compteType1").toString());
+                try {
+                    double amount = Double.parseDouble(request.getSubscriberInput());
+                    sub.getSubParams().put("montant", amount); //montant
+                    sub.setAmount(new BigDecimal(amount));
+                    //BPS_CONFIRM_TRANSACTION=Debit of {AMOUNT} from {PHONE_NUMBER}. Enter 1 to confirm:
+                    Logger.getLogger("qos_ussd_processor").info(String.format("{%s} entered {%s} amount",
+                            request.getMsisdn(), request.getSubscriberInput()));
+                    final String respMessage = "Transfert de xxxxx fcfa de votre compte momo sur votre compte padme épargne à vue.\nFrais : xxxxxxxx fcfa"
+                            .replace("{AMOUNT}", amount + " XOF").replace("{PHONE_NUMBER}", sub.getSubParams().get("PHONE_NUMBER").toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.CONTINUE);
+                    sub.incrementMenuLevel();
+                    activeSessions.put(request.getMsisdn(), sub);
+                    return resp;
+                } catch (NumberFormatException ex) {
+                    Logger.getLogger("qos_ussd_processor").info(request.getMsisdn() + " entered invalid amount : " + request.getSubscriberInput());
+                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_AMOUNT.toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    activeSessions.remove(request.getMsisdn());
+                    Logger.getLogger("qos_ussd_processor").info(String.format("removed {%s} from active sessions", request.getMsisdn()));
+                    return resp;
+                }
 
-                switch (operation) {
-                    //Tontine
-                    case 1:
-                        try {
-                            operationType = Integer.parseInt(request.getSubscriberInput());
-                            if (operationType < 1 || operationType > 6) {
-                                throw new NumberFormatException();
-                            }
-                            sub.getSubParams().put("operationType", operationType); //operationType
-                        } catch (NumberFormatException ex) {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                            activeSessions.remove(request.getMsisdn());
-                            return resp;
-                        }
-
-                        switch (operationType) {
-                            // Payement ponctuel
-                            case 1:
-                            // Auto-Debit
-                            case 2:
-                            // Annulation de l'Auto-debit
-                            case 3:
-                            // Remboursement de la tontine
-                            case 4:
-                                resp.setApplicationResponse("Tontine\n"
-                                        + "Entrer votre identifiant de tontine:");
-                                resp.setFreeflow(UssdConstants.CONTINUE);
-                                sub.incrementMenuLevel();
-                                activeSessions.put(request.getMsisdn(), sub);
-                                return resp;
-                            default:
-                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                //Pret
+                case 3:
+                    operation = Integer.parseInt(sub.getSubParams().get("operation").toString());
+                    String respMessage = null;
+                    switch(operation){
+                        //Remboursement de prêt
+                        case 1:
+                            final int compteType;
+                            try {
+                                compteType = Integer.parseInt(request.getSubscriberInput());
+                                if (compteType < 1 || compteType > 3) {
+                                    throw new NumberFormatException();
+                                }
+                                sub.getSubParams().put("compteType", compteType); //compteType
+                            } catch (NumberFormatException ex) {
+                                respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                                 Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                                 activeSessions.remove(request.getMsisdn());
                                 return resp;
-                        }
+                            }
 
-                    // Demande de pret
-                    case 2:
-                        sub.getSubParams().put("identifiantPret", request.getSubscriberInput()); //identifiantPret
-                        try {
-                            /*String[] parts = request.getMsisdn().split("229");
-                            String number = parts[1]; // Phone Number without 229
-                            sub.getSubParams().put("NUMBER", number);*/
-                            JsonObject getAuthorizationPayment = new JsonObject();
-                            //getAuthorizationPayment.addProperty("tel", sub.getSubParams().get("NUMBER").toString());
-                            getAuthorizationPayment.addProperty("id", sub.getSubParams().get("identifiantPret").toString());
-                            final String response = new HTTPUtil().getList(getAuthorizationPayment, "#");
-                            sub.getSubParams().put("JSON_RESPONSE", response);
-                            /*JsonParser parseResponse = new JsonParser();
-                            JsonObject jo = (JsonObject) parseResponse.parse(response);
-                            String[] rm = response.split("\"");
-                            String[] data = rm[1].split("-");
-                            String[] solde = data[1].split("=");*/
-                            try {
-                                final int id = Integer.parseInt(response); //id
-                                if (id != 0) {
-                                    resp.setApplicationResponse("Entrer le montant du prêt:");
+                            switch(compteType){
+                                case 1:
+                                case 2:
+                                    respMessage = "Rembourser de votre compte :\n" +
+                                                  "1. MoMo\n" +
+                                                  "2. Epargne à vue" ;
                                     resp.setFreeflow(UssdConstants.CONTINUE);
                                     sub.incrementMenuLevel();
                                     activeSessions.put(request.getMsisdn(), sub);
-                                } else {
-                                    resp.setApplicationResponse("Identifiant incorrect");
-                                    resp.setFreeflow(UssdConstants.BREAK);
-                                    Logger.getLogger("qos_ussd_processor").info("unauthorized number supplied for padme request: " + request.getMsisdn());
-                                    activeSessions.remove(request.getMsisdn());
-                                }
-                            } catch (NumberFormatException ex) {
-                                resp.setApplicationResponse("Invalid Padme details entered");
-                                resp.setFreeflow(UssdConstants.BREAK);
-                                Logger.getLogger("qos_ussd_processor").info("invalid details supplied for padme request: " + request.getMsisdn());
-                                activeSessions.remove(request.getMsisdn());
-                            }
-                        } catch (Exception ex) {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                            Logger.getLogger("qos_ussd_processor").info("invalid input entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                            activeSessions.remove(request.getMsisdn());
-                        }
-
-                        return resp;
-                    // Remboursement
-                    case 3:
-                        sub.getSubParams().put("identifiantPret", request.getSubscriberInput()); //identifiantPret
-                        try {
-                            /*String[] parts = request.getMsisdn().split("229");
-                            String number = parts[1]; // Phone Number without 229
-                            sub.getSubParams().put("NUMBER", number);*/
-                            JsonObject getAuthorizationPayment = new JsonObject();
-                            //getAuthorizationPayment.addProperty("tel", sub.getSubParams().get("NUMBER").toString());
-                            getAuthorizationPayment.addProperty("id", sub.getSubParams().get("identifiantPret").toString());
-                            final String response = new HTTPUtil().getList(getAuthorizationPayment, "#url");
-                            final String balance = new HTTPUtil().getList(getAuthorizationPayment, "#url"); // Solde
-                            sub.getSubParams().put("JSON_RESPONSE", response);
-                            /*JsonParser parseResponse = new JsonParser();
-                            JsonObject jo = (JsonObject) parseResponse.parse(response);
-                            String[] rm = response.split("\"");
-                            String[] data = rm[1].split("-");
-                            String[] solde = data[1].split("=");*/
-                            try {
-                                final int id = Integer.parseInt(response); //id (boolean)
-                                if (id != 0) { //True
-                                    resp.setApplicationResponse("Le solde du prêt courant est de " + balance + " XOF. \n"
-                                            + "Entrer le montant à rembourser:");
+                                case 3:
+                                    respMessage = "Veuillez saisir le montant à rembourser :";
                                     resp.setFreeflow(UssdConstants.CONTINUE);
                                     sub.incrementMenuLevel();
                                     activeSessions.put(request.getMsisdn(), sub);
-                                } else { //False
-                                    resp.setApplicationResponse("Identifiant incorrect");
+                                default:
+                                    respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                                     resp.setFreeflow(UssdConstants.BREAK);
-                                    Logger.getLogger("qos_ussd_processor").info("unauthorized number supplied for padme request: " + request.getMsisdn());
+                                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                                     activeSessions.remove(request.getMsisdn());
-                                }
-                            } catch (NumberFormatException ex) {
-                                resp.setApplicationResponse("Invalid Padme details entered");
-                                resp.setFreeflow(UssdConstants.BREAK);
-                                Logger.getLogger("qos_ussd_processor").info("invalid details supplied for padme request: " + request.getMsisdn());
-                                activeSessions.remove(request.getMsisdn());
-                            }
-                        } catch (Exception ex) {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                            Logger.getLogger("qos_ussd_processor").info("invalid input entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                            activeSessions.remove(request.getMsisdn());
-                        }
-                        return resp;
-                    // Padme Pay
-                    case 4:
-                        try {
-                            operationType = Integer.parseInt(request.getSubscriberInput());
-                            if (operationType < 1 || operationType > 6) {
-                                throw new NumberFormatException();
-                            }
-                            sub.getSubParams().put("operationType", operationType); //operationType
-                        } catch (NumberFormatException ex) {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                            activeSessions.remove(request.getMsisdn());
-                            return resp;
-                        }
-                        switch (operationType) {
-                            // Dépôt sur Padme Pay
-                            case 1:
-                            //Padme Pay sur Mobile Money
-                            case 2:
-                                resp.setApplicationResponse("Demande de prêt\n"
-                                        + "Entrer votre identifiant:");
-                                resp.setFreeflow(UssdConstants.CONTINUE);
-                                sub.incrementMenuLevel();
-                                activeSessions.put(request.getMsisdn(), sub);
-                                return resp;
-                            default:
-                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                                resp.setApplicationResponse(respMessage);
-                                resp.setFreeflow(UssdConstants.BREAK);
-                                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                                activeSessions.remove(request.getMsisdn());
-                                return resp;
-                        }
-                    //Solde de votre compte
-                    case 5:
-                        try {
-                            final int account = Integer.parseInt(request.getSubscriberInput());
-                            if (account < 1 || account > 6) {
-                                throw new NumberFormatException();
-                            }
-                            sub.getSubParams().put("account", account); //account
-                        } catch (NumberFormatException ex) {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                            activeSessions.remove(request.getMsisdn());
-                            return resp;
-                        }
 
-                        resp.setApplicationResponse("Entrer votre PIN pour consulter le solde de votre compte épargne");
-                        resp.setFreeflow(UssdConstants.CONTINUE);
-                        sub.incrementMenuLevel();
-                        activeSessions.put(request.getMsisdn(), sub);
-                        return resp;
-                    case 6:
-                        resp.setApplicationResponse("Les frais de prêt sont composés d'un montant fixe et journalier. Cela sera montré avant d'accepter le prêt. Le remboursement se fait par déduction automatique à la date d'échéance\n"
-                                + "1. Accepter\n"
-                                + "2. Refuser");
-                        resp.setFreeflow(UssdConstants.CONTINUE);
-                        sub.incrementMenuLevel();
-                        activeSessions.put(request.getMsisdn(), sub);
-                        return resp;
-                    default:
-                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                            }
+                        case 2:
+                            respMessage = "Veuillez saisir le montant sollicité: \n";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        case 3:
+                            respMessage = "Etat du prêt :\n" 
+                                    +     "Montant du crédit : xxxxxxx\n" 
+                                    +     "Montant échéance : xxxxxxx\n" 
+                                    +     "Montant impayé : xxxxxxx\n" 
+                                    +     "Reste à solder : xxxxxxx\n" 
+                                    +     "Nombre d'échances restant : XX\n" 
+                                    +     "Date de la dernière échance : xx/xx/xxxx ";
+
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        default:
+                            respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                            resp.setFreeflow(UssdConstants.BREAK);
+                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                            activeSessions.remove(request.getMsisdn());
+
+                    }
+                    resp.setApplicationResponse(respMessage);
+                    return resp;
+                // Transfert
+                case 4:
+                    final int compteType;
+                    try {
+                        compteType = Integer.parseInt(request.getSubscriberInput());
+                        if (compteType < 1 || compteType > 2) {
+                            throw new NumberFormatException();
+                        }
+                        sub.getSubParams().put("compteType", compteType); //compteType
+                    } catch (NumberFormatException ex) {
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                         resp.setApplicationResponse(respMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                         activeSessions.remove(request.getMsisdn());
                         return resp;
-                }
+                    }
 
-            default:
-                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                resp.setApplicationResponse(respMessage);
-                resp.setFreeflow(UssdConstants.BREAK);
-                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                activeSessions.remove(request.getMsisdn());
-                return resp;
-        }
+                    switch(compteType){
+                        case 1:
+                            respMessage = "A partir de votre compte :\n" +
+                                          "1. Courant";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        case 2:
+                            respMessage = "A partir de votre compte :\n" +
+                                          "1. Epargne à vue";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        default:
+                            respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                            resp.setFreeflow(UssdConstants.BREAK);
+                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                            activeSessions.remove(request.getMsisdn());
+
+                    }
+                    return resp;
+                // Gestion du compte
+                case 5:
+                    try {
+                        compteType = Integer.parseInt(request.getSubscriberInput());
+                        if (compteType < 1 || compteType > 2) {
+                            throw new NumberFormatException();
+                        }
+                        sub.getSubParams().put("compteType", compteType); //compteType
+                    } catch (NumberFormatException ex) {
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                        resp.setApplicationResponse(respMessage);
+                        resp.setFreeflow(UssdConstants.BREAK);
+                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
+                    }
+
+                    switch(compteType){
+                        case 1:
+                            respMessage = "Solde :\n" +
+                                        "1. Compte epargne\n" +
+                                        "2. Compte plan tontine\n" +
+                                        "3. Compte courant";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        case 2:
+                            respMessage = "Les 4 prochaines pages afficheront les termes et les conditions.\n" +
+                                            "1. Suivant\n" +
+                                            "0. Retour";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        default:
+                            respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                            resp.setFreeflow(UssdConstants.BREAK);
+                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                            activeSessions.remove(request.getMsisdn());
+                    }
+                    return resp;
+                //Operations pour tiers
+                case 6:
+                    try {
+                        compteType = Integer.parseInt(request.getSubscriberInput());
+                        if (compteType < 1 || compteType > 2) {
+                            throw new NumberFormatException();
+                        }
+                        sub.getSubParams().put("compteType", compteType); //compteType
+                    } catch (NumberFormatException ex) {
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                        resp.setApplicationResponse(respMessage);
+                        resp.setFreeflow(UssdConstants.BREAK);
+                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
+                    }
+
+                    resp.setApplicationResponse("Veuillez saisir le numero de téléphone du tiers");
+                    resp.setFreeflow(UssdConstants.CONTINUE);
+                    sub.incrementMenuLevel();
+                    activeSessions.put(request.getMsisdn(), sub);
+                    return resp;
+                default:
+                    final String respMsg = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                    resp.setApplicationResponse(respMsg);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                    activeSessions.remove(request.getMsisdn());
+                    return resp;
+            }
     }
 
     private UssdResponse processPadmeLevel5Menu(SubscriberInfo sub, UssdRequest request) {
         Logger.getLogger("qos_ussd_processor").info("Padme menu level5 for " + request.getMsisdn());
         final UssdResponse resp = new UssdResponse();
         resp.setMsisdn(request.getMsisdn());
-        final int itemId, operation, operationType;
+        final int itemId, operation, operationType, option;
         final String listString;
         final Gson gson = new Gson();
 
         itemId = Integer.parseInt(sub.getSubParams().get("itemId").toString());
         switch (itemId) {
-            //Ouverture
+            //Depôt
             case 1:
-                sub.getSubParams().put("epargnePrenom", request.getSubscriberInput()); //epargneNom
-                resp.setApplicationResponse("Epargne\n"
-                        + "Entrez votre date de naissance:");
-                resp.setFreeflow(UssdConstants.CONTINUE);
-                sub.incrementMenuLevel();
-                activeSessions.put(request.getMsisdn(), sub);
-                return resp;
-            //Connexion
-            case 2:
-                operation = Integer.parseInt(sub.getSubParams().get("operation").toString());
+                // message final if success
+                resp.setMsisdn(request.getMsisdn());
+                try {
+                    final int pay = Integer.parseInt(request.getSubscriberInput());
+                    if (pay == 1) {
+                        Logger.getLogger("qos_ussd_processor").info("processing padme transaction for: " + request.getMsisdn());
+                        JsonObject requestPayment = new JsonObject();
+                        requestPayment.addProperty("msisdn", sub.getMsisdn());
+                        requestPayment.addProperty("amount", sub.getAmount());
+                        final StringBuilder transref = new StringBuilder();
+                        transref.append("itemId=").append(sub.getSubParams().get("itemId").toString()).append("|")
+                                .append("compteType1=").append(sub.getSubParams().get("compteType1").toString()).append("|")
+                                .append("numCompte1=").append(sub.getSubParams().get("numCompte1").toString()).append("|")
+                                .append("montant=").append(sub.getSubParams().get("montant").toString())
+                                .append("date=").append(sub.getSubParams().get("date").toString());
+                        requestPayment.addProperty("transref", request.getSessionId());
+                        requestPayment.addProperty("specialfield1", transref.toString());
+                        requestPayment.addProperty("clientid", sub.getMerchantCode());
 
-                switch (operation) {
-                    //Tontine
-                    case 1:
-                        operationType = Integer.parseInt(sub.getSubParams().get("operationType").toString());
-
-                        switch (operationType) {
-                            // Payement ponctuel
-                            case 1:
-                            // Auto-Debit
-                            case 2:
-                                sub.getSubParams().put("identifiantTontine", request.getSubscriberInput()); //identifiantPret
-                                resp.setApplicationResponse("Entrer le montant:");
-                                resp.setFreeflow(UssdConstants.CONTINUE);
-                                sub.incrementMenuLevel();
-                                activeSessions.put(request.getMsisdn(), sub);
-                                return resp;
-                            // Annulation de l'Auto-debit
-                            case 3:
-                            // Remboursement de la tontine
-                            case 4:
-                                //Message Final if success
-                                resp.setMsisdn(request.getMsisdn());
-                                try {
-                                    //final int pay = Integer.parseInt(request.getSubscriberInput());
-                                    //if (pay == 1) {
-                                    Logger.getLogger("qos_ussd_processor").info("processing padme transaction for: " + request.getMsisdn());
-                                    JsonObject requestPayment = new JsonObject();
-                                    requestPayment.addProperty("msisdn", sub.getMsisdn());
-                                    requestPayment.addProperty("amount", sub.getAmount());
-                                    final StringBuilder transref = new StringBuilder();
-                                    transref.append("itemId=").append(sub.getSubParams().get("itemId").toString()).append("|")
-                                            .append("operation=").append(sub.getSubParams().get("operation").toString()).append("|")
-                                            .append("operationType=").append(sub.getSubParams().get("operationType").toString())
-                                            .append("identifiantTontine=").append(sub.getSubParams().get("identifiantTontine").toString());
-                                    requestPayment.addProperty("transref", request.getSessionId());
-                                    requestPayment.addProperty("specialfield1", transref.toString());
-                                    requestPayment.addProperty("clientid", sub.getMerchantCode());
-
-                                    final String response = new HTTPUtil().sendRequestPayment(requestPayment);
-                                    if (response.equals("")) {
-                                        Logger.getLogger("qos_ussd_processor").info("sendRequestPayment returned empty response");
-                                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                                        resp.setApplicationResponse(respMessage);
-                                        resp.setFreeflow(UssdConstants.BREAK);
-                                    } else {
-                                        JsonParser parseResponse = new JsonParser();
-                                        JsonObject jo = (JsonObject) parseResponse.parse(response);
-                                        if (jo.get("responsecode").getAsString().equals("01")) {
-                                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRANSACTION_PROCESSING.toString());
-                                            resp.setApplicationResponse(respMessage);
-                                            resp.setFreeflow(UssdConstants.BREAK);
-                                        } else {
-                                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                                            resp.setApplicationResponse(respMessage);
-                                            resp.setFreeflow(UssdConstants.BREAK);
-                                        }
-                                    }
-                                    activeSessions.remove(request.getMsisdn());
-                                    return resp;
-                                    /*} else {
-                                        //cancel transaction
-                                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.CANCEL_TRANSACTION.toString());
-                                        resp.setApplicationResponse(respMessage);
-                                        resp.setFreeflow(UssdConstants.BREAK);
-                                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                                        activeSessions.remove(request.getMsisdn());
-                                        return resp;
-                                    }*/
-                                } catch (NumberFormatException ex) {
-                                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                                    resp.setApplicationResponse(respMessage);
-                                    resp.setFreeflow(UssdConstants.BREAK);
-                                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                                    activeSessions.remove(request.getMsisdn());
-                                    return resp;
-                                } catch (JsonSyntaxException ex) {
-                                    Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                                    resp.setApplicationResponse(respMessage);
-                                    resp.setFreeflow(UssdConstants.BREAK);
-                                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                                    activeSessions.remove(request.getMsisdn());
-                                    return resp;
-                                }
-                            default:
-                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                                resp.setApplicationResponse(respMessage);
-                                resp.setFreeflow(UssdConstants.BREAK);
-                                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                                activeSessions.remove(request.getMsisdn());
-                                return resp;
-                        }
-
-                    // Demande de pret
-                    case 2:
-                        sub.getSubParams().put("montant", request.getSubscriberInput()); //montant
-                        // message final if success
-                        resp.setMsisdn(request.getMsisdn());
-                        try {
-                            //final int pay = Integer.parseInt(request.getSubscriberInput());
-                            //if (pay == 1) {
-                            Logger.getLogger("qos_ussd_processor").info("processing padme transaction for: " + request.getMsisdn());
-                            JsonObject requestPayment = new JsonObject();
-                            requestPayment.addProperty("msisdn", sub.getMsisdn());
-                            requestPayment.addProperty("amount", sub.getAmount());
-                            final StringBuilder transref = new StringBuilder();
-                            transref.append("itemId=").append(sub.getSubParams().get("itemId").toString()).append("|")
-                                    .append("operation=").append(sub.getSubParams().get("operation").toString()).append("|")
-                                    .append("operationType=").append(sub.getSubParams().get("operationType").toString())
-                                    .append("identifiantPret=").append(sub.getSubParams().get("identifiantPret").toString());
-                            requestPayment.addProperty("transref", request.getSessionId());
-                            requestPayment.addProperty("specialfield1", transref.toString());
-                            requestPayment.addProperty("clientid", sub.getMerchantCode());
-
-                            final String response = new HTTPUtil().sendRequestPayment(requestPayment);
-                            if (response.equals("")) {
-                                Logger.getLogger("qos_ussd_processor").info("sendRequestPayment returned empty response");
-                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
+                        final String response = new HTTPUtil().sendRequestPayment(requestPayment);
+                        if (response.equals("")) {
+                            Logger.getLogger("qos_ussd_processor").info("sendRequestPayment returned empty response");
+                            final String respMessage = "Transfert de xxxxx fcfa de votre compte momo sur votre compte padme épargne à vue.\nFrais : xxxxxxxx fcfa"; //UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
+                            resp.setApplicationResponse(respMessage);
+                            resp.setFreeflow(UssdConstants.BREAK);
+                        } else {
+                            JsonParser parseResponse = new JsonParser();
+                            JsonObject jo = (JsonObject) parseResponse.parse(response);
+                            if (jo.get("responsecode").getAsString().equals("01")) {
+                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRANSACTION_PROCESSING.toString());
                                 resp.setApplicationResponse(respMessage);
                                 resp.setFreeflow(UssdConstants.BREAK);
                             } else {
-                                JsonParser parseResponse = new JsonParser();
-                                JsonObject jo = (JsonObject) parseResponse.parse(response);
-                                if (jo.get("responsecode").getAsString().equals("01")) {
-                                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRANSACTION_PROCESSING.toString());
-                                    resp.setApplicationResponse(respMessage);
-                                    resp.setFreeflow(UssdConstants.BREAK);
-                                } else {
-                                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                                    resp.setApplicationResponse(respMessage);
-                                    resp.setFreeflow(UssdConstants.BREAK);
-                                }
+                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
+                                resp.setApplicationResponse(respMessage);
+                                resp.setFreeflow(UssdConstants.BREAK);
                             }
-                            activeSessions.remove(request.getMsisdn());
-                            return resp;
-                            /*} else {
-                                        //cancel transaction
-                                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.CANCEL_TRANSACTION.toString());
+                        }
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
+                    }else{
+                        //cancel transaction
+                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.CANCEL_TRANSACTION.toString());
+                        resp.setApplicationResponse(respMessage);
+                        resp.setFreeflow(UssdConstants.BREAK);
+                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
+                    }
+                } catch (NumberFormatException ex) {
+                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                    activeSessions.remove(request.getMsisdn());
+                    return resp;
+                } catch (JsonSyntaxException ex) {
+                    Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
+                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                    activeSessions.remove(request.getMsisdn());
+                    return resp;
+                }
+            //Retrait
+            case 2:
+                // message final if success
+                resp.setMsisdn(request.getMsisdn());
+                try {
+                    final int pay = Integer.parseInt(request.getSubscriberInput());
+                    if (pay == 1) {
+                        Logger.getLogger("qos_ussd_processor").info("processing padme transaction for: " + request.getMsisdn());
+                        JsonObject requestPayment = new JsonObject();
+                        requestPayment.addProperty("msisdn", sub.getMsisdn());
+                        requestPayment.addProperty("amount", sub.getAmount());
+                        final StringBuilder transref = new StringBuilder();
+                        transref.append("itemId=").append(sub.getSubParams().get("itemId").toString()).append("|")
+                                .append("compteType1=").append(sub.getSubParams().get("compteType1").toString()).append("|")
+                                .append("numCompte1=").append(sub.getSubParams().get("numCompte1").toString()).append("|")
+                                .append("montant=").append(sub.getSubParams().get("montant").toString())
+                                .append("date=").append(sub.getSubParams().get("date").toString());
+                        requestPayment.addProperty("transref", request.getSessionId());
+                        requestPayment.addProperty("specialfield1", transref.toString());
+                        requestPayment.addProperty("clientid", sub.getMerchantCode());
+
+                        final String response = new HTTPUtil().sendRequestPayment(requestPayment);
+                        if (response.equals("")) {
+                            Logger.getLogger("qos_ussd_processor").info("sendRequestPayment returned empty response");
+                            final String respMessage = "Transfert de xxxxx fcfa de votre compte momo sur votre compte padme épargne à vue.\nFrais : xxxxxxxx fcfa"; //UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
+                            resp.setApplicationResponse(respMessage);
+                            resp.setFreeflow(UssdConstants.BREAK);
+                        } else {
+                            JsonParser parseResponse = new JsonParser();
+                            JsonObject jo = (JsonObject) parseResponse.parse(response);
+                            if (jo.get("responsecode").getAsString().equals("01")) {
+                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRANSACTION_PROCESSING.toString());
+                                resp.setApplicationResponse(respMessage);
+                                resp.setFreeflow(UssdConstants.BREAK);
+                            } else {
+                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
+                                resp.setApplicationResponse(respMessage);
+                                resp.setFreeflow(UssdConstants.BREAK);
+                            }
+                        }
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
+                    }else{
+                        //cancel transaction
+                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.CANCEL_TRANSACTION.toString());
+                        resp.setApplicationResponse(respMessage);
+                        resp.setFreeflow(UssdConstants.BREAK);
+                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
+                    }
+                } catch (NumberFormatException ex) {
+                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                    activeSessions.remove(request.getMsisdn());
+                    return resp;
+                } catch (JsonSyntaxException ex) {
+                    Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
+                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
+                    resp.setApplicationResponse(respMessage);
+                    resp.setFreeflow(UssdConstants.BREAK);
+                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                    activeSessions.remove(request.getMsisdn());
+                    return resp;
+                }
+            //Pret
+                case 3:
+                    operation = Integer.parseInt(sub.getSubParams().get("operation").toString());
+                    String respMessage = null;
+                    switch(operation){
+                        //Remboursement de prêt
+                        case 1:
+                            final int compteType;
+                            try {
+                                compteType = Integer.parseInt(request.getSubscriberInput());
+                                if (compteType < 1 || compteType > 3) {
+                                    throw new NumberFormatException();
+                                }
+                                sub.getSubParams().put("compteType", compteType); //compteType
+                            } catch (NumberFormatException ex) {
+                                respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                                resp.setApplicationResponse(respMessage);
+                                resp.setFreeflow(UssdConstants.BREAK);
+                                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                                activeSessions.remove(request.getMsisdn());
+                                return resp;
+                            }
+
+                            switch(compteType){
+                                case 1:
+                                case 2:
+                                    final int RemcompteType;
+                                    try {
+                                        RemcompteType = Integer.parseInt(request.getSubscriberInput());
+                                        if (RemcompteType < 1 || RemcompteType > 3) {
+                                            throw new NumberFormatException();
+                                        }
+                                        sub.getSubParams().put("RemcompteType", RemcompteType); //Rembourser de votre compte
+                                    } catch (NumberFormatException ex) {
+                                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                                         resp.setApplicationResponse(respMessage);
                                         resp.setFreeflow(UssdConstants.BREAK);
                                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                                         activeSessions.remove(request.getMsisdn());
                                         return resp;
-                                    }*/
-                        } catch (NumberFormatException ex) {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                            resp.setApplicationResponse(respMessage);
+                                    }
+                                    
+                                    switch(compteType){
+                                        case 1:
+                                            respMessage = "A partir de votre compte :\n" +
+                                                          "1. Courant";
+                                            resp.setFreeflow(UssdConstants.CONTINUE);
+                                            sub.incrementMenuLevel();
+                                            activeSessions.put(request.getMsisdn(), sub);
+                                        case 2:
+                                            respMessage = "A partir de votre compte :\n" +
+                                                          "1. Epargne à vue";
+                                            resp.setFreeflow(UssdConstants.CONTINUE);
+                                            sub.incrementMenuLevel();
+                                            activeSessions.put(request.getMsisdn(), sub);
+                                        default:
+                                            respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                                            resp.setFreeflow(UssdConstants.BREAK);
+                                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                                            activeSessions.remove(request.getMsisdn());
+
+                                    }
+                                    return resp;
+                                    
+                                case 3:
+                                    respMessage = "Veuillez saisir le montant à rembourser :";
+                                    resp.setFreeflow(UssdConstants.CONTINUE);
+                                    sub.incrementMenuLevel();
+                                    activeSessions.put(request.getMsisdn(), sub);
+                                default:
+                                    respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                                    resp.setFreeflow(UssdConstants.BREAK);
+                                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                                    activeSessions.remove(request.getMsisdn());
+
+                            }
+                        case 2:
+                            respMessage = "Veuillez saisir le montant sollicité: \n";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        case 3:
+                            respMessage = "Etat du prêt :\n" 
+                                    +     "Montant du crédit : xxxxxxx\n" 
+                                    +     "Montant échéance : xxxxxxx\n" 
+                                    +     "Montant impayé : xxxxxxx\n" 
+                                    +     "Reste à solder : xxxxxxx\n" 
+                                    +     "Nombre d'échances restant : XX\n" 
+                                    +     "Date de la dernière échance : xx/xx/xxxx ";
+
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        default:
+                            respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                             resp.setFreeflow(UssdConstants.BREAK);
                             Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                             activeSessions.remove(request.getMsisdn());
-                            return resp;
-                        } catch (JsonSyntaxException ex) {
-                            Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                            activeSessions.remove(request.getMsisdn());
-                            return resp;
+
+                    }
+                    resp.setApplicationResponse(respMessage);
+                    return resp;
+                // Transfert
+                case 4:
+                    final int compteType;
+                    try {
+                        compteType = Integer.parseInt(request.getSubscriberInput());
+                        if (compteType < 1 || compteType > 2) {
+                            throw new NumberFormatException();
                         }
-                    default:
-                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                        sub.getSubParams().put("compteType", compteType); //compteType
+                    } catch (NumberFormatException ex) {
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                         resp.setApplicationResponse(respMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                         activeSessions.remove(request.getMsisdn());
                         return resp;
-                }
+                    }
 
-            // Remboursement
-            case 3:
-                sub.getSubParams().put("montant", request.getSubscriberInput()); //montant
-                resp.setApplicationResponse("Choisissez le compte à débiter\n"
-                        + "1. Mobile Money\n"
-                        + "2. Padme");
-                resp.setFreeflow(UssdConstants.CONTINUE);
-                sub.incrementMenuLevel();
-                activeSessions.put(request.getMsisdn(), sub);
-                return resp;
+                    switch(compteType){
+                        case 1:
+                            respMessage = "A partir de votre compte :\n" +
+                                          "1. Courant";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        case 2:
+                            respMessage = "A partir de votre compte :\n" +
+                                          "1. Epargne à vue";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        default:
+                            respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                            resp.setFreeflow(UssdConstants.BREAK);
+                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                            activeSessions.remove(request.getMsisdn());
 
-            // Padme Pay
-            case 4:
-                operationType = Integer.parseInt(sub.getSubParams().get("operationType").toString());
-
-                switch (operationType) {
-                    // Dépôt sur Padme Pay
-                    case 1:
-                        sub.getSubParams().put("identifiantPret", request.getSubscriberInput()); //identifiantPret
-                        resp.setApplicationResponse("Entrer le numero de votre compte Padme Pay Account:");
-                        resp.setFreeflow(UssdConstants.CONTINUE);
-                        sub.incrementMenuLevel();
-                        activeSessions.put(request.getMsisdn(), sub);
-                        return resp;
-                    //Padme Pay sur Mobile Money
-                    case 2:
-                        sub.getSubParams().put("identifiantPret", request.getSubscriberInput()); //identifiantPret
-                        resp.setApplicationResponse("Entrer votre numero mobile money");
-                        resp.setFreeflow(UssdConstants.CONTINUE);
-                        sub.incrementMenuLevel();
-                        activeSessions.put(request.getMsisdn(), sub);
-                        return resp;
-                    default:
-                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                    }
+                    return resp;
+                // Gestion du compte
+                case 5:
+                    try {
+                        compteType = Integer.parseInt(request.getSubscriberInput());
+                        if (compteType < 1 || compteType > 2) {
+                            throw new NumberFormatException();
+                        }
+                        sub.getSubParams().put("compteType", compteType); //compteType
+                    } catch (NumberFormatException ex) {
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                         resp.setApplicationResponse(respMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
                         Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                         activeSessions.remove(request.getMsisdn());
                         return resp;
-                }
-            //Solde de votre compte
-            case 5:
-                // message final if success
-                resp.setMsisdn(request.getMsisdn());
-                try {
-                    //final int pay = Integer.parseInt(request.getSubscriberInput());
-                    //if (pay == 1) {
-                    Logger.getLogger("qos_ussd_processor").info("processing padme transaction for: " + request.getMsisdn());
-                    JsonObject requestPayment = new JsonObject();
-                    requestPayment.addProperty("msisdn", sub.getMsisdn());
-                    requestPayment.addProperty("amount", sub.getAmount());
-                    final StringBuilder transref = new StringBuilder();
-                    transref.append("itemId=").append(sub.getSubParams().get("itemId").toString()).append("|")
-                            .append("operation=").append(sub.getSubParams().get("operation").toString()).append("|")
-                            .append("pin=").append(request.getSubscriberInput())
-                            .append("account=").append(sub.getSubParams().get("account").toString());
-                    requestPayment.addProperty("transref", request.getSessionId());
-                    requestPayment.addProperty("specialfield1", transref.toString());
-                    requestPayment.addProperty("clientid", sub.getMerchantCode());
+                    }
 
-                    final String response = new HTTPUtil().sendRequestPayment(requestPayment);
-                    if (response.equals("")) {
-                        Logger.getLogger("qos_ussd_processor").info("sendRequestPayment returned empty response");
-                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
+                    switch(compteType){
+                        case 1:
+                            respMessage = "Solde :\n" +
+                                        "1. Compte epargne\n" +
+                                        "2. Compte plan tontine\n" +
+                                        "3. Compte courant";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        case 2:
+                            respMessage = "Les 4 prochaines pages afficheront les termes et les conditions.\n" +
+                                            "1. Suivant\n" +
+                                            "0. Retour";
+                            resp.setFreeflow(UssdConstants.CONTINUE);
+                            sub.incrementMenuLevel();
+                            activeSessions.put(request.getMsisdn(), sub);
+                        default:
+                            respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                            resp.setFreeflow(UssdConstants.BREAK);
+                            Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                            activeSessions.remove(request.getMsisdn());
+                    }
+                    return resp;
+                //Operations pour tiers
+                case 6:
+                    try {
+                        compteType = Integer.parseInt(request.getSubscriberInput());
+                        if (compteType < 1 || compteType > 2) {
+                            throw new NumberFormatException();
+                        }
+                        sub.getSubParams().put("compteType", compteType); //compteType
+                    } catch (NumberFormatException ex) {
+                        respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
                         resp.setApplicationResponse(respMessage);
                         resp.setFreeflow(UssdConstants.BREAK);
-                    } else {
-                        JsonParser parseResponse = new JsonParser();
-                        JsonObject jo = (JsonObject) parseResponse.parse(response);
-                        if (jo.get("responsecode").getAsString().equals("01")) {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRANSACTION_PROCESSING.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                        } else {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                        }
+                        Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
+                        activeSessions.remove(request.getMsisdn());
+                        return resp;
                     }
-                    activeSessions.remove(request.getMsisdn());
-                    return resp;
-                    /*} else {
-                                //cancel transaction
-                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.CANCEL_TRANSACTION.toString());
-                                resp.setApplicationResponse(respMessage);
-                                resp.setFreeflow(UssdConstants.BREAK);
-                                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                                activeSessions.remove(request.getMsisdn());
-                                return resp;
-                            }*/
-                } catch (NumberFormatException ex) {
-                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                    resp.setApplicationResponse(respMessage);
-                    resp.setFreeflow(UssdConstants.BREAK);
-                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                    activeSessions.remove(request.getMsisdn());
-                    return resp;
-                } catch (JsonSyntaxException ex) {
-                    Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                    resp.setApplicationResponse(respMessage);
-                    resp.setFreeflow(UssdConstants.BREAK);
-                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                    activeSessions.remove(request.getMsisdn());
-                    return resp;
-                }
-            // Termes and Conditions
-            case 6:
-                // message final if success
-                resp.setMsisdn(request.getMsisdn());
-                sub.getSubParams().put("termes", Integer.parseInt(request.getSubscriberInput())); //termes
-                try {
-                    //if (pay == 1) {
-                    Logger.getLogger("qos_ussd_processor").info("processing padme transaction for: " + request.getMsisdn());
-                    JsonObject requestPayment = new JsonObject();
-                    requestPayment.addProperty("msisdn", sub.getMsisdn());
-                    requestPayment.addProperty("amount", sub.getAmount());
-                    final StringBuilder transref = new StringBuilder();
-                    transref.append("itemId=").append(sub.getSubParams().get("itemId").toString()).append("|")
-                            .append("operation=").append(sub.getSubParams().get("operation").toString()).append("|")
-                            .append("termes=").append(sub.getSubParams().get("termes").toString())
-                            .append("account=").append(sub.getSubParams().get("account").toString());
-                    requestPayment.addProperty("transref", request.getSessionId());
-                    requestPayment.addProperty("specialfield1", transref.toString());
-                    requestPayment.addProperty("clientid", sub.getMerchantCode());
 
-                    final String response = new HTTPUtil().sendRequestPayment(requestPayment);
-                    if (response.equals("")) {
-                        Logger.getLogger("qos_ussd_processor").info("sendRequestPayment returned empty response");
-                        final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                        resp.setApplicationResponse(respMessage);
-                        resp.setFreeflow(UssdConstants.BREAK);
-                    } else {
-                        JsonParser parseResponse = new JsonParser();
-                        JsonObject jo = (JsonObject) parseResponse.parse(response);
-                        if (jo.get("responsecode").getAsString().equals("01")) {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_TRANSACTION_PROCESSING.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                        } else {
-                            final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                            resp.setApplicationResponse(respMessage);
-                            resp.setFreeflow(UssdConstants.BREAK);
-                        }
-                    }
-                    activeSessions.remove(request.getMsisdn());
+                    resp.setApplicationResponse("Veuillez saisir le numero de téléphone du tiers");
+                    resp.setFreeflow(UssdConstants.CONTINUE);
+                    sub.incrementMenuLevel();
+                    activeSessions.put(request.getMsisdn(), sub);
                     return resp;
-                    /*} else {
-                                //cancel transaction
-                                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.CANCEL_TRANSACTION.toString());
-                                resp.setApplicationResponse(respMessage);
-                                resp.setFreeflow(UssdConstants.BREAK);
-                                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                                activeSessions.remove(request.getMsisdn());
-                                return resp;
-                            }*/
-                } catch (NumberFormatException ex) {
-                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                    resp.setApplicationResponse(respMessage);
+                default:
+                    final String respMsg = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
+                    resp.setApplicationResponse(respMsg);
                     resp.setFreeflow(UssdConstants.BREAK);
                     Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
                     activeSessions.remove(request.getMsisdn());
                     return resp;
-                } catch (JsonSyntaxException ex) {
-                    Logger.getLogger("qos_ussd_processor").info("JsonSyntaxException. Reason: " + ex.getMessage());
-                    final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.ARAD_REQUEST_FAILED.toString());
-                    resp.setApplicationResponse(respMessage);
-                    resp.setFreeflow(UssdConstants.BREAK);
-                    Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                    activeSessions.remove(request.getMsisdn());
-                    return resp;
-                }
-            default:
-                final String respMessage = UssdConstants.MESSAGES.getProperty(USSDSessionHandler.MessageKey.INVALID_OPTION.toString());
-                resp.setApplicationResponse(respMessage);
-                resp.setFreeflow(UssdConstants.BREAK);
-                Logger.getLogger("qos_ussd_processor").info("invalid option entered{" + request.getSubscriberInput() + "} by" + request.getMsisdn());
-                activeSessions.remove(request.getMsisdn());
-                return resp;
-        }
+            }
+        
     }
 
     private UssdResponse processPadmeLevel6Menu(SubscriberInfo sub, UssdRequest request) {
